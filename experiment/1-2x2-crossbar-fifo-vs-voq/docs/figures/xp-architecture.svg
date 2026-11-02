@@ -91,23 +91,17 @@
   <!-- data arrows -->
   <line class="arrow" x1="180" y1="225" x2="215" y2="225"/>
   <line class="arrow" x1="180" y1="505" x2="215" y2="505"/>
-  <line class="arrow" x1="350" y1="225" x2="425" y2="255"/>
-  <line class="arrow" x1="350" y1="225" x2="590" y2="255"/>
-  <line class="arrow" x1="350" y1="505" x2="425" y2="445"/>
-  <line class="arrow" x1="350" y1="505" x2="590" y2="445"/>
-  <line class="arrow" x1="580" y1="270" x2="845" y2="250"/>
-  <line class="arrow" x1="580" y1="450" x2="845" y2="300"/>
-  <line class="arrow" x1="760" y1="270" x2="845" y2="500"/>
-  <line class="arrow" x1="760" y1="450" x2="845" y2="530"/>
+  <path class="arrow" d="M350 225 L400 270"/>
+  <path class="arrow" d="M350 505 L400 460"/>
+  <path class="arrow" d="M790 290 L845 265"/>
+  <path class="arrow" d="M790 440 L845 525"/>
   <line class="arrow" x1="1060" y1="265" x2="1095" y2="265"/>
   <line class="arrow" x1="1060" y1="525" x2="1095" y2="525"/>
-
+    
   <!-- backpressure note -->
   <path class="back" d="M400 300 L355 300 L355 270"/>
   <path class="back" d="M400 480 L355 480 L355 550"/>
-  <text x="365" y="325" class="tiny">target XP full</text>
-  <text x="365" y="575" class="tiny">target XP full</text>
-
+    
   <rect class="note" x="35" y="625" width="1130" height="65"/>
   <text x="55" y="655" class="small">每个 (input, output) 一个 FIFO；输入按 dst 写入对应交叉点，输出从本列两个 FIFO 中按包选择。</text>
   <text x="55" y="680" class="small">XP 解耦输入/输出仲裁，但面积是 4 个 FIFO；Phase 3 与 FIFO/VOQ 做同总 buffer 对比。</text>

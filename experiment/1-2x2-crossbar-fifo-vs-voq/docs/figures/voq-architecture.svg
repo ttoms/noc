@@ -79,15 +79,13 @@
   <text x="1110" y="536" text-anchor="middle" class="small">dst 1</text>
 
   <!-- data arrows -->
-  <line class="arrow" x1="190" y1="235" x2="265" y2="235"/>
-  <line class="arrow" x1="190" y1="505" x2="265" y2="505"/>
-  <line class="arrow" x1="470" y1="265" x2="775" y2="255"/>
-  <line class="arrow" x1="470" y1="445" x2="775" y2="255"/>
-  <line class="arrow" x1="670" y1="265" x2="775" y2="515"/>
-  <line class="arrow" x1="670" y1="445" x2="775" y2="515"/>
+  <line class="arrow" x1="190" y1="235" x2="270" y2="235"/>
+  <line class="arrow" x1="190" y1="505" x2="270" y2="505"/>
+  <path class="arrow" d="M700 270 L775 255"/>
+  <path class="arrow" d="M700 450 L775 515"/>
   <line class="arrow" x1="1000" y1="255" x2="1055" y2="255"/>
   <line class="arrow" x1="1000" y1="515" x2="1055" y2="515"/>
-
+    
   <!-- backpressure note -->
   <path class="back" d="M270 300 L205 300 L205 320"/>
   <path class="back" d="M270 490 L205 490 L205 510"/>
