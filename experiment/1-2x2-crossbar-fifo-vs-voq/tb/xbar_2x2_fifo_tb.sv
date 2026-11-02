@@ -2,10 +2,13 @@
 // Trace-replay testbench for xbar_2x2_fifo.
 // Trace CSV: seq,src,dst,len,arrival
 // Output CSV: port,src,len,start,end
-module xbar_2x2_fifo_tb;
+module xbar_2x2_fifo_tb #(
+    // Per-input shared FIFO depth.  Override at compile time, e.g.
+    //   iverilog -P xbar_2x2_fifo_tb.DEPTH=4 ...
+    parameter int DEPTH = 32
+);
 
     localparam int FLIT_W     = 32;
-    localparam int DEPTH      = 32;
     localparam int MAX_PKTS   = 100000;
     localparam int MAX_CYCLES = 200000;
 

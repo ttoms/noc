@@ -16,70 +16,77 @@
 //   - no output queue / VOQ in this variant
 //==============================================================================
 module xbar_2x2_fifo #(
-    parameter int FLIT_W = 32,
-    parameter int DEPTH  = 32
+    parameter   int FLIT_W  =   32  ,
+    parameter   int DEPTH   =   32
 ) (
-    input  logic                 clk,
-    input  logic                 rst_n,
+    input   logic                       clk         ,
+    input   logic                       rst_n       ,
 
-    input  logic [1:0]           in_vld,
-    output logic [1:0]           in_rdy,
-    input  logic [1:0][FLIT_W-1:0] in_data,
-    input  logic [1:0]           in_sop,
-    input  logic [1:0]           in_eop,
-    input  logic [1:0]           in_dst,
+    input   logic [1 :0]                in_vld      ,
+    output  logic [1 :0]                in_rdy      ,
+    input   logic [1 :0] [FLIT_W -1:0]  in_data     ,
+    input   logic [1 :0]                in_sop      ,
+    input   logic [1 :0]                in_eop      ,
+    input   logic [1 :0]                in_dst      ,
 
-    output logic [1:0]           out_vld,
-    input  logic [1:0]           out_rdy,
-    output logic [1:0][FLIT_W-1:0] out_data,
-    output logic [1:0]           out_sop,
-    output logic [1:0]           out_eop,
-    output logic [1:0]           out_src_dbg
+    output  logic [1 :0]                out_vld     ,
+    input   logic [1 :0]                out_rdy     ,
+    output  logic [1 :0] [FLIT_W -1:0]  out_data    ,
+    output  logic [1 :0]                out_sop     ,
+    output  logic [1 :0]                out_eop     ,
+    output  logic [1 :0]                out_src_dbg
 );
 
     localparam int FIFO_W = FLIT_W + 3;
 
-    logic [1:0]             fifo_wr_rdy;
-    logic [1:0]             fifo_rd_vld;
-    logic [1:0]             fifo_rd_rdy;
-    logic [1:0][FIFO_W-1:0] fifo_rd_data;
+    logic [1 :0]                fifo_wr_rdy     ;
+    logic [1 :0]                fifo_rd_vld     ;
+    logic [1 :0]                fifo_rd_rdy     ;
+    logic [1 :0] [FIFO_W -1:0]  fifo_wr_data    ;
+    logic [1 :0] [FIFO_W -1:0]  fifo_rd_data    ;
 
-    logic [1:0]             head_dst;
-    logic [1:0]             head_sop;
-    logic [1:0]             head_eop;
-    logic [1:0][FLIT_W-1:0] head_data;
+    logic [1 :0]                head_dst    ;
+    logic [1 :0]                head_sop    ;
+    logic [1 :0]                head_eop    ;
+    logic [1 :0] [FLIT_W -1:0]  head_data   ;
 
-    logic [1:0]             req0;
-    logic [1:0]             req1;
-    logic [1:0]             gnt0;
-    logic [1:0]             gnt1;
-    logic                   gnt0_vld;
-    logic                   gnt1_vld;
+    logic [1 :0]    req0        ;
+    logic [1 :0]    req1        ;
+    logic [1 :0]    gnt0        ;
+    logic [1 :0]    gnt1        ;
+    logic           gnt0_vld    ;
+    logic           gnt1_vld    ;
+    logic [1 :0]    gnt_vld     ;
+    logic [1 :0]    gnt_src     ;
 
-    logic [1:0]             locked;
-    logic [1:0]             locked_src;
+    logic [1 :0]    locked          ;
+    logic [1 :0]    locked_src      ;
+    logic [1 :0]    nxt_locked      ;
+    logic [1 :0]    nxt_locked_src  ;
+    logic           lock_en         ;
 
     logic [1:0]             sel;
     logic [1:0]             sel_vld;
-    logic [1:0]             sel_src;
 
     genvar i;
     generate
         for (i = 0; i < 2; i++) begin : g_input_fifo
+            assign fifo_wr_data[i] = {in_dst[i], in_sop[i], in_eop[i], in_data[i]};
+
             fifo_sync #(
-                .DATA_W (FIFO_W),
-                .DEPTH  (DEPTH )
+                .DATA_W (FIFO_W ),
+                .DEPTH  (DEPTH  )
             ) U_FIFO (
-                .clk     (clk),
-                .rst_n   (rst_n),
-                .wr_vld  (in_vld[i]),
-                .wr_rdy  (fifo_wr_rdy[i]),
-                .wr_data ({in_dst[i], in_sop[i], in_eop[i], in_data[i]}),
-                .rd_vld  (fifo_rd_vld[i]),
-                .rd_rdy  (fifo_rd_rdy[i]),
-                .rd_data (fifo_rd_data[i]),
-                .empty   (),
-                .full    ()
+                .clk        (clk                ),
+                .rst_n      (rst_n              ),
+                .wr_vld     (in_vld[i]          ),
+                .wr_rdy     (fifo_wr_rdy[i]     ),
+                .wr_data    (fifo_wr_data[i]    ),
+                .rd_vld     (fifo_rd_vld[i]     ),
+                .rd_rdy     (fifo_rd_rdy[i]     ),
+                .rd_data    (fifo_rd_data[i]    ),
+                .empty      (                   ),
+                .full       (                   )
             );
 
             assign in_rdy[i] = fifo_wr_rdy[i];
@@ -109,26 +116,31 @@ module xbar_2x2_fifo #(
                      !gnt0[1];
 
     arbiter_rr #(
-        .N (2)
+        .N  (2  )
     ) U_ARB0 (
-        .clk     (clk),
-        .rst_n   (rst_n),
-        .upd     (gnt0_vld),
-        .req     (req0),
-        .gnt     (gnt0),
-        .gnt_vld (gnt0_vld)
+        .clk        (clk        ),
+        .rst_n      (rst_n      ),
+        .upd        (gnt0_vld   ),
+        .req        (req0       ),
+        .gnt        (gnt0       ),
+        .gnt_vld    (gnt0_vld   )
     );
 
     arbiter_rr #(
-        .N (2)
+        .N  (2  )
     ) U_ARB1 (
-        .clk     (clk),
-        .rst_n   (rst_n),
-        .upd     (gnt1_vld),
-        .req     (req1),
-        .gnt     (gnt1),
-        .gnt_vld (gnt1_vld)
+        .clk        (clk        ),
+        .rst_n      (rst_n      ),
+        .upd        (gnt1_vld   ),
+        .req        (req1       ),
+        .gnt        (gnt1       ),
+        .gnt_vld    (gnt1_vld   )
     );
+
+    assign gnt_vld[0] = gnt0_vld;
+    assign gnt_vld[1] = gnt1_vld;
+    assign gnt_src[0] = gnt0[1];
+    assign gnt_src[1] = gnt1[1];
 
     assign sel[0] = locked[0] ? locked_src[0] : gnt0[1];
     assign sel[1] = locked[1] ? locked_src[1] : gnt1[1];
@@ -156,32 +168,48 @@ module xbar_2x2_fifo #(
         (out_vld[0] && out_rdy[0] && (sel[0] == 1'b1)) ||
         (out_vld[1] && out_rdy[1] && (sel[1] == 1'b1));
 
-    always_ff @(posedge clk or negedge rst_n) begin
-        if (!rst_n) begin
-            locked     <= 2'b00;
-            locked_src <= 2'b00;
-        end else begin
-            // output 0
-            if (!locked[0] && gnt0_vld) begin
-                if (!(out_vld[0] && out_rdy[0] && out_eop[0])) begin
-                    locked[0]     <= 1'b1;
-                    locked_src[0] <= gnt0[1]; // one-hot: 0 -> src0, 1 -> src1
+    always_comb begin
+        nxt_locked     = locked;
+        nxt_locked_src = locked_src;
+        for (int o = 0; o < 2; o++) begin
+            if (!locked[o] && gnt_vld[o]) begin
+                if (!(out_vld[o] && out_rdy[o] && out_eop[o])) begin
+                    nxt_locked[o]     = 1'b1;
+                    nxt_locked_src[o] = gnt_src[o];
                 end
-            end else if (locked[0] && out_vld[0] && out_rdy[0] && out_eop[0]) begin
-                locked[0] <= 1'b0;
-            end
-
-            // output 1
-            if (!locked[1] && gnt1_vld) begin
-                if (!(out_vld[1] && out_rdy[1] && out_eop[1])) begin
-                    locked[1]     <= 1'b1;
-                    locked_src[1] <= gnt1[1];
-                end
-            end else if (locked[1] && out_vld[1] && out_rdy[1] && out_eop[1]) begin
-                locked[1] <= 1'b0;
+            end else if (locked[o] && out_vld[o] && out_rdy[o] && out_eop[o]) begin
+                nxt_locked[o] = 1'b0;
             end
         end
     end
+
+    assign lock_en = (nxt_locked != locked) || (nxt_locked_src != locked_src);
+
+    dffr #(
+        .W          (2      ),
+        .RESET_VAL  (2'b00  )
+    ) U_LOCKED (
+        .clk    (clk        ),
+        .rst_n  (rst_n      ),
+        .en     (lock_en    ),
+        .d      (nxt_locked ),
+        .q      (locked     )
+    );
+
+    dffr #(
+        .W          (2      ),
+        .RESET_VAL  (2'b00  )
+    ) U_LOCKED_SRC (
+        .clk    (clk            ),
+        .rst_n  (rst_n          ),
+        .en     (lock_en        ),
+        .d      (nxt_locked_src ),
+        .q      (locked_src     )
+    );
+
+`ifdef SVA_ON
+`include "xbar_2x2_fifo.sva"
+`endif
 
 endmodule
 

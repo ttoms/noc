@@ -2,14 +2,35 @@
 
 一个 cycle-accurate 的 2x2 packet crossbar 实验：比较共享输入 FIFO 与 per-destination VOQ 在 no-drop / backpressure 下的吞吐、延迟和 HOL blocking。
 
-> 当前是 **Phase 1**：模型与 RTL 已逐包、逐 cycle 对齐；结论见 [REPORT.md](REPORT.md)。
+> Phase 1：模型与 RTL 已逐包、逐 cycle 对齐，结论见 [REPORT.md](REPORT.md)。
+> Phase 2：把 per-queue capacity 作为正交变量做全因子矩阵，结论见
+> [reports/phase2.md](reports/phase2.md)。Phase 1 产物保持不变。
+
+![IQ-FIFO architecture](docs/figures/fifo-architecture.png)
+
+![IQ-VOQ architecture](docs/figures/voq-architecture.png)
+
+![Verification flow](docs/figures/verification-flow.png)
 
 ## 结论速览
+
+Phase 1（固定总 buffer 64）：
 
 - load 0.5：FIFO 与 VOQ 都能跟上，利用率约 0.489
 - load ≥0.8：FIFO 被 HOL 卡在约 0.716–0.718；VOQ 约 0.789–0.813
 - FIFO 的 HOL rate 约 46–47%；VOQ 为 0
 - 等总 buffer 64 flits 下比较，不是靠增加存储赢
+
+Phase 2（容量正交，1152 runs）：
+
+- 1152/1152 全部 exact；384 cells、192 strata
+- VOQ 利用率更好 112/192，FIFO 更好 10/192，持平 70/192
+- 平均增益 +2.69pp；容量越大越明显：cap 4/8/16/32 为
+  +0.88 / +2.40 / +3.50 / +3.99pp
+- 只有较高负载明显：load 0.5 基本持平，0.8/0.95/1.0 为
+  +2.85 / +3.95 / +3.95pp
+- fixed1 全部持平；bimodal1-8 增益最大（+4.45pp）
+- 等总 buffer 16/32/64 flits 的增益为 +0.19 / +2.25 / +3.55pp
 
 ## 实验设定
 
@@ -22,15 +43,37 @@
   - VOQ：4 × 16
 - 输出 RR 仲裁；uniform destination；load 0.5 / 0.8 / 0.95 / 1.0
 
-## 快速开始
+## Phase 2：容量作为正交变量
 
-依赖：Python 3.10+、iverilog 11+。
+Phase 2 固定 2x2、包粒度仲裁、no-drop，把容量按 **per-queue** 计：
+
+- queue type：`fifo` / `voq`
+- capacity per queue：4 / 8 / 16 / 32 flits（0.5 / 1 / 2 / 4 max packets）
+- load：0.5 / 0.8 / 0.95 / 1.0
+- packet length：`fixed1` / `fixed8` / `uniform1-8` / `bimodal1-8`（50/50）
+- traffic：`uniform` / `hotspot` / `bursty`
+- seeds：1 / 2 / 3
+
+共 `2 × 4 × 4 × 4 × 3 × 3 = 1152` runs。先跑 core capacity curve（capacity ×
+load × type，`uniform1-8` + `uniform`，96 runs），再跑完整矩阵。
+
+RTL/TB 的队列深度是编译期参数：FIFO `DEPTH`、VOQ `VOQ_DEPTH`。每个
+`(type, capacity)` 只编译一个 binary，所有 load/length/traffic/seed 复用。
 
 ```bash
-python3 gen_trace.py --out /tmp/trace.jsonl --csv-out /tmp/trace.csv \
+python3 scripts/run_matrix.py --workdir ~/Temp/phase2 --outdir results/phase2
+```
+
+结果文件见 [results/phase2/](results/phase2/)，完整报告见
+[reports/phase2.md](reports/phase2.md)。
+
+## 快速开始（Phase 1）
+
+```bash
+python3 scripts/gen_trace.py --out /tmp/trace.jsonl --csv-out /tmp/trace.csv \
   --load 0.8 --cycles 4000 --seed 1
 
-python3 run_cosim.py \
+python3 scripts/run_cosim.py \
   --trace-jsonl /tmp/trace.jsonl --trace-csv /tmp/trace.csv \
   --cycles 4000 --warmup 500 \
   --dut fifo --mode fifo --total-buffer 64 --compile \
@@ -42,7 +85,7 @@ python3 run_cosim.py \
 批量 sweep：
 
 ```bash
-python3 run_sweep.py \
+python3 scripts/run_sweep.py \
   --loads 0.5,0.8,0.95,1.0 --seeds 1,2,3 \
   --cycles 4000 --warmup 500 \
   --mode fifo --dut fifo \
@@ -52,21 +95,28 @@ python3 run_sweep.py \
 
 ## 目录
 
-- `model_v2.py`：flit 粒度 cycle model
-- `gen_trace.py`：模型/RTL 共用 trace
-- `gen_directed.py`：27 个定向验证 case
-- `run_cosim.py`：逐包 + 逐 cycle 精确对比
-- `run_sweep.py`：load/seed sweep
-- `rtl/`：FIFO 和 VOQ 两套 RTL
-- `tb/`：trace replay + 调试 CSV
+- `scripts/model_v2.py`：flit 粒度 cycle model
+- `scripts/gen_trace.py`：模型/RTL 共用 trace（Phase 2 增加 length / traffic 模式）
+- `scripts/gen_directed.py`：27 个定向验证 case
+- `scripts/run_cosim.py`：逐包 + 逐 cycle 精确对比，支持编译期 depth
+- `scripts/run_sweep.py`：Phase 1 load/seed sweep
+- `scripts/run_matrix.py`：Phase 2 全因子矩阵驱动
+- `scripts/analyze_phase2.py`：Phase 2 聚合、effect 分层、等总 buffer 提取
+- `rtl/`：FIFO 和 VOQ 两套参数化 RTL（遵循 rtl-developer 规范）
+- `sva/`：RTL 协议断言
+- `tb/`：trace replay + 调试 CSV（顶层 `DEPTH` 参数）
 - `vendor/cbb/`：复用的 CBB（fifo_sync、arbiter_rr、dff 等）
 - `docs/architecture/2x2-crossbar.md`：架构、接口、时序契约
+- `docs/figures/`：FIFO/VOQ/XP/验证流程图，SVG 源 + PNG
+- `scripts/`：trace、模型、co-sim、sweep、Phase 2 矩阵与分析脚本
 - `REPORT.md`：Phase 1 完整报告
-- `results/phase1/`：sweep 汇总
+- `reports/phase2.md`：Phase 2 完整报告
+- `results/phase1/`：Phase 1 sweep 汇总
+- `results/phase2/`：Phase 2 raw summary、聚合 JSON、绘图 CSV
 
 ## 验证标准
 
-模型和 RTL 使用同一份 trace；`run_cosim.py` 按输出端口完成顺序比较 `(src, len, start, end)`，并可逐 cycle 比较 occupancy、head、grant、lock、source stall。任何差异直接报错，不使用统计容差。
+模型和 RTL 使用同一份 trace；`scripts/run_cosim.py` 按输出端口完成顺序比较 `(src, len, start, end)`，并可逐 cycle 比较 occupancy、head、grant、lock、source stall。任何差异直接报错，不使用统计容差。
 
 ## License
 

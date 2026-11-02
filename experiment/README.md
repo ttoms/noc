@@ -5,6 +5,8 @@
 - [1-2x2-crossbar-fifo-vs-voq](1-2x2-crossbar-fifo-vs-voq/README.md)
   - 2x2 packet crossbar：共享输入 FIFO vs per-destination VOQ
   - Phase 1：cycle-exact 模型 + RTL + 逐包/逐 cycle 验证
-  - 报告：[REPORT.md](1-2x2-crossbar-fifo-vs-voq/REPORT.md)
+    （[REPORT.md](1-2x2-crossbar-fifo-vs-voq/REPORT.md)）
+  - Phase 2：per-queue capacity 正交化，capacity × load × type × packet length ×
+    traffic 全因子矩阵（[reports/phase2.md](1-2x2-crossbar-fifo-vs-voq/reports/phase2.md)）
 
 每个实验目录自包含：README、REPORT、RTL、TB、模型、复现脚本、结果汇总。

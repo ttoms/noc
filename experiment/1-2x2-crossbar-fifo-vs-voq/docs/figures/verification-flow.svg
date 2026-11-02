@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="620" viewBox="0 0 1200 620">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#334155"/>
+    </marker>
+  </defs>
+  <style>
+    .title { font: 700 30px 'Noto Sans CJK SC','Noto Sans CJK JP',sans-serif; fill: #0f172a; }
+    .sub { font: 18px 'Noto Sans CJK SC','Noto Sans CJK JP',sans-serif; fill: #475569; }
+    .box { stroke-width: 2; rx: 10; }
+    .gen { fill: #dbeafe; stroke: #2563eb; }
+    .trace { fill: #fef9c3; stroke: #ca8a04; }
+    .model { fill: #dcfce7; stroke: #16a34a; }
+    .rtl { fill: #ffedd5; stroke: #ea580c; }
+    .cmp { fill: #ede9fe; stroke: #7c3aed; }
+    .out { fill: #f1f5f9; stroke: #475569; }
+    .label { font: 600 20px 'Noto Sans CJK SC','Noto Sans CJK JP',sans-serif; fill: #0f172a; }
+    .small { font: 16px 'Noto Sans CJK SC','Noto Sans CJK JP',sans-serif; fill: #334155; }
+    .tiny { font: 14px 'Noto Sans CJK SC','Noto Sans CJK JP',sans-serif; fill: #64748b; }
+    .arrow { stroke: #334155; stroke-width: 2.5; fill: none; marker-end: url(#arrow); }
+    .note { fill: #f8fafc; stroke: #94a3b8; stroke-width: 1.5; rx: 8; }
+  </style>
+
+  <rect width="1200" height="620" fill="#ffffff"/>
+  <text x="600" y="50" text-anchor="middle" class="title">Verification flow: 同一份 trace，模型与 RTL 逐包/逐 cycle 对比</text>
+  <text x="600" y="82" text-anchor="middle" class="sub">No tolerance · deterministic trace · exact match is the acceptance criterion</text>
+
+  <!-- generator -->
+  <rect class="box gen" x="40" y="220" width="190" height="110"/>
+  <text x="135" y="258" text-anchor="middle" class="label">Trace generator</text>
+  <text x="135" y="286" text-anchor="middle" class="small">scripts/gen_trace.py</text>
+  <text x="135" y="310" text-anchor="middle" class="tiny">load / length / traffic / seed</text>
+
+  <!-- trace -->
+  <rect class="box trace" x="290" y="220" width="190" height="110"/>
+  <text x="385" y="258" text-anchor="middle" class="label">Shared trace</text>
+  <text x="385" y="286" text-anchor="middle" class="small">trace.jsonl + trace.csv</text>
+  <text x="385" y="310" text-anchor="middle" class="tiny">seq, src, dst, len, arrival</text>
+
+  <!-- model -->
+  <rect class="box model" x="550" y="110" width="220" height="120"/>
+  <text x="660" y="148" text-anchor="middle" class="label">Python model</text>
+  <text x="660" y="176" text-anchor="middle" class="small">scripts/model_v2.py</text>
+  <text x="660" y="200" text-anchor="middle" class="tiny">flit-level cycle model</text>
+
+  <!-- rtl -->
+  <rect class="box rtl" x="550" y="330" width="220" height="120"/>
+  <text x="660" y="368" text-anchor="middle" class="label">RTL + testbench</text>
+  <text x="660" y="396" text-anchor="middle" class="small">rtl/ + tb/</text>
+  <text x="660" y="420" text-anchor="middle" class="tiny">iverilog trace replay</text>
+
+  <!-- compare -->
+  <rect class="box cmp" x="840" y="210" width="200" height="140"/>
+  <text x="940" y="248" text-anchor="middle" class="label">Exact compare</text>
+  <text x="940" y="276" text-anchor="middle" class="small">scripts/run_cosim.py</text>
+  <text x="940" y="300" text-anchor="middle" class="tiny">packets: src/len/start/end</text>
+  <text x="940" y="322" text-anchor="middle" class="tiny">cycles: occ./grant/lock</text>
+
+  <!-- report -->
+  <rect class="box out" x="1070" y="220" width="110" height="120"/>
+  <text x="1125" y="258" text-anchor="middle" class="label">Report</text>
+  <text x="1125" y="286" text-anchor="middle" class="small">REPORT.md</text>
+  <text x="1125" y="310" text-anchor="middle" class="tiny">+ results/</text>
+
+  <!-- arrows -->
+  <line class="arrow" x1="230" y1="275" x2="285" y2="275"/>
+  <line class="arrow" x1="480" y1="275" x2="545" y2="180"/>
+  <line class="arrow" x1="480" y1="275" x2="545" y2="380"/>
+  <line class="arrow" x1="770" y1="180" x2="835" y2="255"/>
+  <line class="arrow" x1="770" y1="380" x2="835" y2="305"/>
+  <line class="arrow" x1="1040" y1="280" x2="1065" y2="280"/>
+
+  <!-- acceptance box -->
+  <rect class="note" x="550" y="490" width="620" height="75"/>
+  <text x="570" y="520" class="small">验收标准：每个输出端口的包顺序、len、start、end 完全一致；</text>
+  <text x="570" y="545" class="small">逐 cycle 的队列占用、head、grant、lock、source stall 也完全一致。</text>
+</svg>

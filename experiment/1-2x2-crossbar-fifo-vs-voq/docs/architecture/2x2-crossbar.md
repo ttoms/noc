@@ -18,9 +18,13 @@
 
 每个输入一个共享 FIFO，所有目的共用。队头包等输出时，后面的包不能绕过，形成 HOL blocking。
 
+![IQ-FIFO architecture](../figures/fifo-architecture.png)
+
 ### 2.2 Input VOQ（IQ-VOQ）
 
 每个输入、每个输出一个队列；2x2 共 4 个 VOQ。输入调度器选择一个非空且目标输出可用的 VOQ，避免队头包阻塞其他目的。
+
+![IQ-VOQ architecture](../figures/voq-architecture.png)
 
 ### 2.3 Output FIFO（OQ）
 
@@ -30,14 +34,7 @@
 
 每个 input-output 交叉点一个 FIFO；2x2 共 4 个 crosspoint FIFO：
 
-```text
-in0 ──demux──> XP[0][0] ──┐
-  │             XP[0][1] ──┤
-  │                         ├── mux/arb ──> out0
-in1 ──demux──> XP[1][0] ──┤
-                XP[1][1] ──┘
-                              └── mux/arb ──> out1
-```
+![Per-crosspoint FIFO architecture](../figures/xp-architecture.png)
 
 - 输入 demux 按包的 `dst` 把整包写入对应 XP FIFO。
 - 输出 mux 从该输出的两个 XP FIFO 中按包粒度仲裁。

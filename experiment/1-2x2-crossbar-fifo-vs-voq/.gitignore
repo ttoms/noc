@@ -5,4 +5,8 @@ results/*
 !results/phase1/
 !results/phase1/*.json
 !results/phase1/*.md
+!results/phase2/
+!results/phase2/*.json
+!results/phase2/*.csv
+!results/phase2/*.md
 out/

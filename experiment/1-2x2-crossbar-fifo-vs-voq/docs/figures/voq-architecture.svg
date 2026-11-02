@@ -1,0 +1,100 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="720" viewBox="0 0 1200 720">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#334155"/>
+    </marker>
+    <marker id="arrow-back" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#b45309"/>
+    </marker>
+  </defs>
+  <style>
+    .title { font: 700 30px 'Noto Sans CJK SC','Noto Sans CJK JP',sans-serif; fill: #0f172a; }
+    .sub { font: 18px 'Noto Sans CJK SC','Noto Sans CJK JP',sans-serif; fill: #475569; }
+    .box { stroke-width: 2; rx: 10; }
+    .in { fill: #dbeafe; stroke: #2563eb; }
+    .bank { fill: #f8fafc; stroke: #475569; }
+    .q { fill: #ffedd5; stroke: #ea580c; }
+    .arb { fill: #dcfce7; stroke: #16a34a; }
+    .out { fill: #ede9fe; stroke: #7c3aed; }
+    .label { font: 600 20px 'Noto Sans CJK SC','Noto Sans CJK JP',sans-serif; fill: #0f172a; }
+    .small { font: 16px 'Noto Sans CJK SC','Noto Sans CJK JP',sans-serif; fill: #334155; }
+    .tiny { font: 14px 'Noto Sans CJK SC','Noto Sans CJK JP',sans-serif; fill: #64748b; }
+    .arrow { stroke: #334155; stroke-width: 2.5; fill: none; marker-end: url(#arrow); }
+    .back { stroke: #b45309; stroke-width: 2; stroke-dasharray: 6 5; fill: none; marker-end: url(#arrow-back); }
+    .note { fill: #f0fdf4; stroke: #16a34a; stroke-width: 1.5; rx: 8; }
+  </style>
+
+  <rect width="1200" height="720" fill="#ffffff"/>
+  <text x="600" y="50" text-anchor="middle" class="title">IQ-VOQ: 每输入、每输出一个队列</text>
+  <text x="600" y="82" text-anchor="middle" class="sub">2 inputs / 2 outputs · 4 VOQs · packet-granular arbitration · no drop, backpressure only</text>
+
+  <!-- inputs -->
+  <rect class="box in" x="40" y="190" width="150" height="90"/>
+  <text x="115" y="228" text-anchor="middle" class="label">Input 0</text>
+  <text x="115" y="256" text-anchor="middle" class="small">src 0</text>
+
+  <rect class="box in" x="40" y="460" width="150" height="90"/>
+  <text x="115" y="498" text-anchor="middle" class="label">Input 1</text>
+  <text x="115" y="526" text-anchor="middle" class="small">src 1</text>
+
+  <!-- VOQ bank -->
+  <rect class="box bank" x="270" y="130" width="430" height="460"/>
+  <text x="485" y="170" text-anchor="middle" class="label">VOQ bank</text>
+  <text x="485" y="196" text-anchor="middle" class="tiny">input demux by dst · 4 queues · depth C flits each</text>
+
+  <rect class="box q" x="300" y="225" width="170" height="80"/>
+  <text x="385" y="258" text-anchor="middle" class="small">VOQ[0][0]</text>
+  <text x="385" y="282" text-anchor="middle" class="tiny">input0 → dst0</text>
+
+  <rect class="box q" x="500" y="225" width="170" height="80"/>
+  <text x="585" y="258" text-anchor="middle" class="small">VOQ[0][1]</text>
+  <text x="585" y="282" text-anchor="middle" class="tiny">input0 → dst1</text>
+
+  <rect class="box q" x="300" y="405" width="170" height="80"/>
+  <text x="385" y="438" text-anchor="middle" class="small">VOQ[1][0]</text>
+  <text x="385" y="462" text-anchor="middle" class="tiny">input1 → dst0</text>
+
+  <rect class="box q" x="500" y="405" width="170" height="80"/>
+  <text x="585" y="438" text-anchor="middle" class="small">VOQ[1][1]</text>
+  <text x="585" y="462" text-anchor="middle" class="tiny">input1 → dst1</text>
+
+  <!-- output arbiters -->
+  <rect class="box arb" x="780" y="180" width="220" height="150"/>
+  <text x="890" y="225" text-anchor="middle" class="label">out0 mux + arbiter</text>
+  <text x="890" y="255" text-anchor="middle" class="small">packet-granular RR</text>
+  <text x="890" y="281" text-anchor="middle" class="tiny">从 VOQ[0][0] / VOQ[1][0] 选包</text>
+
+  <rect class="box arb" x="780" y="440" width="220" height="150"/>
+  <text x="890" y="485" text-anchor="middle" class="label">out1 mux + arbiter</text>
+  <text x="890" y="515" text-anchor="middle" class="small">packet-granular RR</text>
+  <text x="890" y="541" text-anchor="middle" class="tiny">从 VOQ[0][1] / VOQ[1][1] 选包</text>
+
+  <!-- outputs -->
+  <rect class="box out" x="1060" y="210" width="100" height="90"/>
+  <text x="1110" y="248" text-anchor="middle" class="label">out0</text>
+  <text x="1110" y="276" text-anchor="middle" class="small">dst 0</text>
+
+  <rect class="box out" x="1060" y="470" width="100" height="90"/>
+  <text x="1110" y="508" text-anchor="middle" class="label">out1</text>
+  <text x="1110" y="536" text-anchor="middle" class="small">dst 1</text>
+
+  <!-- data arrows -->
+  <line class="arrow" x1="190" y1="235" x2="265" y2="235"/>
+  <line class="arrow" x1="190" y1="505" x2="265" y2="505"/>
+  <line class="arrow" x1="470" y1="265" x2="775" y2="255"/>
+  <line class="arrow" x1="470" y1="445" x2="775" y2="255"/>
+  <line class="arrow" x1="670" y1="265" x2="775" y2="515"/>
+  <line class="arrow" x1="670" y1="445" x2="775" y2="515"/>
+  <line class="arrow" x1="1000" y1="255" x2="1055" y2="255"/>
+  <line class="arrow" x1="1000" y1="515" x2="1055" y2="515"/>
+
+  <!-- backpressure note -->
+  <path class="back" d="M270 300 L205 300 L205 320"/>
+  <path class="back" d="M270 490 L205 490 L205 510"/>
+  <text x="215" y="345" class="tiny">per-VOQ rdy</text>
+  <text x="215" y="535" class="tiny">per-VOQ rdy</text>
+
+  <rect class="note" x="40" y="625" width="1120" height="65"/>
+  <text x="60" y="655" class="small">No HOL: 等 dst0 的包不挡同一输入发往 dst1；只有目标 VOQ 满时才反压该目的。</text>
+  <text x="60" y="680" class="small">每个输出独立做 packet-granular RR；输入在整包期间只服务一个输出。</text>
+</svg>

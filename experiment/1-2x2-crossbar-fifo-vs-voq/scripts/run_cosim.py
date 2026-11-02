@@ -17,8 +17,9 @@ import subprocess
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
+ROOT = os.path.dirname(HERE)
 DEFAULT_CBB_RTL = os.environ.get(
-    "CBB_RTL", os.path.join(HERE, "vendor", "cbb", "rtl")
+    "CBB_RTL", os.path.join(ROOT, "vendor", "cbb", "rtl")
 )
 
 CBB_SOURCES = [
@@ -37,8 +38,18 @@ DUT_FILES = {
     "voq": ("rtl/xbar_2x2_voq.sv", "tb/xbar_2x2_voq_tb.sv"),
 }
 
+TB_TOP = {
+    "fifo": "xbar_2x2_fifo_tb",
+    "voq": "xbar_2x2_voq_tb",
+}
 
-def compile_rtl(binary: str, cbb_rtl: str, dut: str = "fifo") -> None:
+
+def compile_rtl(
+    binary: str,
+    cbb_rtl: str,
+    dut: str = "fifo",
+    depth: int | None = None,
+) -> None:
     if dut not in DUT_FILES:
         raise SystemExit(f"unknown dut {dut}")
     os.makedirs(os.path.dirname(os.path.abspath(binary)), exist_ok=True)
@@ -50,8 +61,13 @@ def compile_rtl(binary: str, cbb_rtl: str, dut: str = "fifo") -> None:
         cbb_rtl,
         "-o",
         binary,
-        os.path.join(HERE, rtl_file),
-        os.path.join(HERE, tb_file),
+    ]
+    if depth is not None:
+        # Compile-time per-queue capacity: FIFO DEPTH / VOQ VOQ_DEPTH.
+        cmd += ["-P", f"{TB_TOP[dut]}.DEPTH={depth}"]
+    cmd += [
+        os.path.join(ROOT, rtl_file),
+        os.path.join(ROOT, tb_file),
     ] + [os.path.join(cbb_rtl, src) for src in CBB_SOURCES]
 
     proc = subprocess.run(cmd, capture_output=True, text=True)
@@ -121,17 +137,21 @@ def run_one(
     cbb_rtl: str,
     check_cycles: bool,
     dut: str = "fifo",
+    depth: int | None = None,
 ) -> dict:
-    # The RTL testbenches fix the buffer capacity: FIFO 2 x 32, VOQ 4 x 16.
-    if total_buffer != 64:
+    if depth is None:
+        # Backward-compatible total-buffer interpretation:
+        # FIFO total/2 per input, VOQ total/4 per VOQ.
+        depth = total_buffer // 2 if mode == "fifo" else total_buffer // 4
+    if depth < 2:
+        raise SystemExit(f"per-queue depth must be >= 2, got {depth}")
+    if depth & (depth - 1):
         raise SystemExit(
-            "co-sim RTL depth is fixed at total_buffer=64 "
-            "(FIFO 2x32, VOQ 4x16); got "
-            f"{total_buffer}"
+            f"per-queue depth must be a power of two (fifo_sync), got {depth}"
         )
     os.makedirs(outdir, exist_ok=True)
     if compile:
-        compile_rtl(binary, cbb_rtl, dut)
+        compile_rtl(binary, cbb_rtl, dut, depth)
 
     base = os.path.splitext(os.path.basename(trace_jsonl))[0]
     rtl_out = os.path.join(outdir, base + ".rtl_packets.csv")
@@ -147,8 +167,8 @@ def run_one(
         trace_jsonl,
         "--mode",
         mode,
-        "--total-buffer",
-        str(total_buffer),
+        "--per-queue-depth",
+        str(depth),
         "--cycles",
         str(cycles),
         "--warmup",
@@ -189,6 +209,7 @@ def run_one(
     result = {
         "trace": base,
         "cycles": cycles,
+        "per_queue_depth": depth,
         "rtl_packets": len(read_packets(rtl_out)),
         "model_packets": len(read_packets(model_out)),
         "packet_errors": packet_errors,
@@ -203,11 +224,13 @@ def main() -> int:
     parser.add_argument("--trace-jsonl", required=True)
     parser.add_argument("--trace-csv", required=True)
     parser.add_argument("--cycles", type=int, required=True)
-    parser.add_argument("--outdir", default=os.path.join(HERE, "out", "cosim"))
-    parser.add_argument("--binary", default=os.path.join(HERE, "build", "xbar_fifo_tb"))
+    parser.add_argument("--outdir", default=os.path.join(ROOT, "out", "cosim"))
+    parser.add_argument("--binary", default=os.path.join(ROOT, "build", "xbar_fifo_tb"))
     parser.add_argument("--dut", choices=["fifo", "voq"], default="fifo")
     parser.add_argument("--mode", choices=["fifo", "voq"], default="fifo")
     parser.add_argument("--total-buffer", type=int, default=64)
+    parser.add_argument("--depth", type=int, default=None,
+                        help="per-queue depth (overrides --total-buffer)")
     parser.add_argument("--warmup", type=int, default=0)
     parser.add_argument("--compile", action="store_true")
     parser.add_argument("--cbb-rtl", default=DEFAULT_CBB_RTL)
@@ -228,6 +251,7 @@ def main() -> int:
         args.cbb_rtl,
         not args.no_cycles,
         args.dut,
+        args.depth,
     )
     if args.json:
         print(json.dumps(result, ensure_ascii=False, indent=2))

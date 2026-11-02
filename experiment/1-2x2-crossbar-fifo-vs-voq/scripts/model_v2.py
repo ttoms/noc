@@ -39,6 +39,7 @@ from __future__ import annotations
 import argparse
 import csv
 import json
+import math
 import sys
 from collections import deque
 from dataclasses import dataclass, field
@@ -180,6 +181,9 @@ class Stats:
     queue_latency_n: int = 0
     queue_occupancy_sum: int = 0
     queue_occupancy_n: int = 0
+    max_total_occupancy: int = 0
+    max_input_occupancy: int = 0
+    max_single_voq_occupancy: int = 0
     output_idle_cycles: int = 0
     hol_cycles: int = 0
     per_src_flits: list[int] = field(default_factory=lambda: [0, 0])
@@ -201,6 +205,9 @@ class Stats:
         self.queue_latency_n = 0
         self.queue_occupancy_sum = 0
         self.queue_occupancy_n = 0
+        self.max_total_occupancy = 0
+        self.max_input_occupancy = 0
+        self.max_single_voq_occupancy = 0
         self.output_idle_cycles = 0
         self.hol_cycles = 0
         self.per_src_flits = [0, 0]
@@ -454,10 +461,22 @@ class Crossbar:
         if measure:
             busy_outputs = len(transfers)
             self.stats.output_idle_cycles += 2 - busy_outputs
-            self.stats.queue_occupancy_sum += (
-                self.queues[0].flits + self.queues[1].flits
-            )
+            q0, q1 = self.queues[0].flits, self.queues[1].flits
+            total_occ = q0 + q1
+            self.stats.queue_occupancy_sum += total_occ
             self.stats.queue_occupancy_n += 2
+            self.stats.max_total_occupancy = max(
+                self.stats.max_total_occupancy, total_occ
+            )
+            self.stats.max_input_occupancy = max(
+                self.stats.max_input_occupancy, q0, q1
+            )
+            if self.mode == "voq":
+                for queue in self.queues:
+                    for occ in queue.voq_flits:
+                        self.stats.max_single_voq_occupancy = max(
+                            self.stats.max_single_voq_occupancy, occ
+                        )
 
         if self.debug:
             self._debug_row(snap, cycle, writes, transfers, granted)
@@ -531,8 +550,21 @@ def jain(values: list[int]) -> float:
     return (total * total) / (len(values) * sum(v * v for v in values))
 
 
+def percentile(values: list[int], q: float) -> float:
+    if not values:
+        return 0.0
+    ordered = sorted(values)
+    idx = min(len(ordered) - 1, max(0, math.ceil(q * len(ordered)) - 1))
+    return float(ordered[idx])
+
+
 def summarize(stats: Stats, cycles: int, mode: str, depths: list[int]) -> dict:
     delivered_tp = stats.delivered_flits / cycles
+    latencies = [
+        p.end - p.arrival
+        for p in stats.delivered
+        if p.end is not None and p.arrival is not None
+    ]
     return {
         "mode": mode,
         "depth": depths,
@@ -546,6 +578,7 @@ def summarize(stats: Stats, cycles: int, mode: str, depths: list[int]) -> dict:
         "avg_pkt_latency": (
             stats.latency_sum / stats.latency_n if stats.latency_n else 0.0
         ),
+        "p99_pkt_latency": percentile(latencies, 0.99),
         "avg_queue_latency": (
             stats.queue_latency_sum / stats.queue_latency_n
             if stats.queue_latency_n
@@ -556,12 +589,21 @@ def summarize(stats: Stats, cycles: int, mode: str, depths: list[int]) -> dict:
             if stats.queue_occupancy_n
             else 0.0
         ),
+        "avg_total_queue_occupancy": (
+            stats.queue_occupancy_sum / (cycles)
+            if stats.queue_occupancy_n
+            else 0.0
+        ),
+        "max_total_queue_occupancy": stats.max_total_occupancy,
+        "max_input_queue_occupancy": stats.max_input_occupancy,
+        "max_single_voq_occupancy": stats.max_single_voq_occupancy,
         "source_stall_rate": stats.source_stall_cycles / (cycles * 2),
         "output_idle_cycles": stats.output_idle_cycles,
         "output_idle_rate": stats.output_idle_cycles / (cycles * 2),
         "hol_cycles": stats.hol_cycles,
         "hol_rate": stats.hol_cycles / cycles,
         "jain": jain(stats.per_src_flits),
+        "jain_dst": jain(stats.per_dst_flits),
         "per_src_0_tp": stats.per_src_flits[0] / cycles,
         "per_src_1_tp": stats.per_src_flits[1] / cycles,
         "per_dst_0_tp": stats.per_dst_flits[0] / cycles,
@@ -598,15 +640,22 @@ def run(
     warmup: int,
     csv_path: str | None,
     cycles_csv: str | None = None,
+    per_queue_depth: int | None = None,
 ) -> dict:
     by_src = load_trace(trace_path)
     sources = [Source(src, by_src.get(src, [])) for src in range(2)]
-    if mode == "fifo":
+    if per_queue_depth is not None:
+        # Phase 2: capacity is per queue, orthogonal to the queue type.
+        # FIFO: per-input shared FIFO; VOQ: per (input, output) queue.
+        depths = [per_queue_depth, per_queue_depth]
+    elif mode == "fifo":
         depths = [total_buffer // 2, total_buffer // 2]
     elif mode == "voq":
         depths = [total_buffer // 4, total_buffer // 4]
     else:
         raise ValueError(mode)
+    if depths[0] <= 0:
+        raise ValueError("queue depth must be positive")
     crossbar = Crossbar(mode, depths, sources, warmup)
     crossbar.debug = cycles_csv is not None
     for _ in range(warmup):
@@ -681,6 +730,8 @@ def main() -> int:
     parser.add_argument("--trace", required=True)
     parser.add_argument("--mode", choices=["fifo", "voq"], required=True)
     parser.add_argument("--total-buffer", type=int, default=64)
+    parser.add_argument("--per-queue-depth", type=int, default=None,
+                        help="capacity per queue (FIFO per input, VOQ per VOQ)")
     parser.add_argument("--cycles", type=int, default=100_000)
     parser.add_argument("--warmup", type=int, default=10_000)
     parser.add_argument("--csv", default=None)
@@ -690,7 +741,11 @@ def main() -> int:
     if args.cycles <= args.warmup:
         print("ERROR: cycles must exceed warmup", file=sys.stderr)
         return 2
-    if args.total_buffer <= 0:
+    if args.per_queue_depth is not None:
+        if args.per_queue_depth <= 0:
+            print("ERROR: per-queue-depth must be positive", file=sys.stderr)
+            return 2
+    elif args.total_buffer <= 0:
         print("ERROR: total-buffer must be positive", file=sys.stderr)
         return 2
     result = run(
@@ -701,6 +756,7 @@ def main() -> int:
         args.warmup,
         args.csv,
         args.cycles_csv,
+        args.per_queue_depth,
     )
     if args.json:
         print(json.dumps(result, ensure_ascii=False, indent=2))

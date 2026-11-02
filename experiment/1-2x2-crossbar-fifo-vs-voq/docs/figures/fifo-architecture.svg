@@ -1,0 +1,98 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="720" viewBox="0 0 1200 720">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#334155"/>
+    </marker>
+    <marker id="arrow-back" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#b45309"/>
+    </marker>
+  </defs>
+  <style>
+    .title { font: 700 30px 'Noto Sans CJK SC','Noto Sans CJK JP',sans-serif; fill: #0f172a; }
+    .sub { font: 18px 'Noto Sans CJK SC','Noto Sans CJK JP',sans-serif; fill: #475569; }
+    .box { stroke-width: 2; rx: 10; }
+    .in { fill: #dbeafe; stroke: #2563eb; }
+    .fifo { fill: #ffedd5; stroke: #ea580c; }
+    .xb { fill: #f1f5f9; stroke: #475569; }
+    .arb { fill: #dcfce7; stroke: #16a34a; }
+    .out { fill: #ede9fe; stroke: #7c3aed; }
+    .label { font: 600 20px 'Noto Sans CJK SC','Noto Sans CJK JP',sans-serif; fill: #0f172a; }
+    .small { font: 16px 'Noto Sans CJK SC','Noto Sans CJK JP',sans-serif; fill: #334155; }
+    .tiny { font: 14px 'Noto Sans CJK SC','Noto Sans CJK JP',sans-serif; fill: #64748b; }
+    .arrow { stroke: #334155; stroke-width: 2.5; fill: none; marker-end: url(#arrow); }
+    .back { stroke: #b45309; stroke-width: 2; stroke-dasharray: 6 5; fill: none; marker-end: url(#arrow-back); }
+    .note { fill: #fff7ed; stroke: #f97316; stroke-width: 1.5; rx: 8; }
+  </style>
+
+  <rect width="1200" height="720" fill="#ffffff"/>
+  <text x="600" y="50" text-anchor="middle" class="title">IQ-FIFO: 每输入一个共享 FIFO</text>
+  <text x="600" y="82" text-anchor="middle" class="sub">2 inputs / 2 outputs · packet-granular arbitration · no drop, backpressure only</text>
+
+  <!-- inputs -->
+  <rect class="box in" x="40" y="180" width="150" height="90"/>
+  <text x="115" y="218" text-anchor="middle" class="label">Input 0</text>
+  <text x="115" y="246" text-anchor="middle" class="small">src 0</text>
+
+  <rect class="box in" x="40" y="440" width="150" height="90"/>
+  <text x="115" y="478" text-anchor="middle" class="label">Input 1</text>
+  <text x="115" y="506" text-anchor="middle" class="small">src 1</text>
+
+  <!-- FIFOs -->
+  <rect class="box fifo" x="250" y="180" width="220" height="90"/>
+  <text x="360" y="218" text-anchor="middle" class="label">共享 FIFO 0</text>
+  <text x="360" y="246" text-anchor="middle" class="small">depth = C flits</text>
+
+  <rect class="box fifo" x="250" y="440" width="220" height="90"/>
+  <text x="360" y="478" text-anchor="middle" class="label">共享 FIFO 1</text>
+  <text x="360" y="506" text-anchor="middle" class="small">depth = C flits</text>
+
+  <!-- crossbar -->
+  <rect class="box xb" x="560" y="170" width="220" height="360"/>
+  <text x="670" y="225" text-anchor="middle" class="label">2x2 crossbar</text>
+  <text x="670" y="255" text-anchor="middle" class="small">输出选择 / mux</text>
+  <text x="670" y="300" text-anchor="middle" class="tiny">FIFO0 和 FIFO1</text>
+  <text x="670" y="322" text-anchor="middle" class="tiny">都可被任一输出读取</text>
+  <text x="670" y="370" text-anchor="middle" class="tiny">包粒度：整包锁定</text>
+  <text x="670" y="392" text-anchor="middle" class="tiny">到 EOP</text>
+
+  <!-- output arbiters -->
+  <rect class="box arb" x="850" y="155" width="210" height="150"/>
+  <text x="955" y="200" text-anchor="middle" class="label">out0 mux + arbiter</text>
+  <text x="955" y="230" text-anchor="middle" class="small">packet-granular RR</text>
+  <text x="955" y="256" text-anchor="middle" class="tiny">grant 锁定到 EOP</text>
+
+  <rect class="box arb" x="850" y="405" width="210" height="150"/>
+  <text x="955" y="450" text-anchor="middle" class="label">out1 mux + arbiter</text>
+  <text x="955" y="480" text-anchor="middle" class="small">packet-granular RR</text>
+  <text x="955" y="506" text-anchor="middle" class="tiny">grant 锁定到 EOP</text>
+
+  <!-- outputs -->
+  <rect class="box out" x="1100" y="180" width="80" height="90"/>
+  <text x="1140" y="218" text-anchor="middle" class="label">out0</text>
+  <text x="1140" y="246" text-anchor="middle" class="small">dst 0</text>
+
+  <rect class="box out" x="1100" y="440" width="80" height="90"/>
+  <text x="1140" y="478" text-anchor="middle" class="label">out1</text>
+  <text x="1140" y="506" text-anchor="middle" class="small">dst 1</text>
+
+  <!-- data arrows -->
+  <line class="arrow" x1="190" y1="225" x2="245" y2="225"/>
+  <line class="arrow" x1="190" y1="485" x2="245" y2="485"/>
+  <line class="arrow" x1="470" y1="225" x2="555" y2="270"/>
+  <line class="arrow" x1="470" y1="485" x2="555" y2="430"/>
+  <line class="arrow" x1="780" y1="270" x2="845" y2="230"/>
+  <line class="arrow" x1="780" y1="430" x2="845" y2="480"/>
+  <line class="arrow" x1="1060" y1="230" x2="1095" y2="230"/>
+  <line class="arrow" x1="1060" y1="480" x2="1095" y2="480"/>
+
+  <!-- backpressure arrows -->
+  <path class="back" d="M250 255 L195 255 L195 275"/>
+  <path class="back" d="M250 515 L195 515 L195 535"/>
+  <text x="205" y="300" class="tiny">rdy / full</text>
+  <text x="205" y="560" class="tiny">rdy / full</text>
+
+  <!-- HOL note -->
+  <rect class="note" x="40" y="620" width="1120" height="70"/>
+  <text x="60" y="650" class="small">HOL: 队头包等 out0 时，后面的 out1 包不能绕过；out0 忙，out1 可能空闲。</text>
+  <text x="60" y="675" class="small">两个输出各自做 packet-granular RR 仲裁；输入/输出在整包期间锁定。</text>
+</svg>

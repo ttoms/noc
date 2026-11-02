@@ -2,7 +2,9 @@
 
 > 日期：2026-11-02
 > 范围：IQ-FIFO 基线 cycle 级对齐、load sweep、IQ-VOQ RTL 与 co-sim。
-> 约束：只改 `crossbar_shaping` 仓库；未动 CC/memory、日历、cron、vault 其他内容；未执行 git push / 发布。
+> 约束：只改本实验目录；未动 CC/memory、日历、cron、vault 其他内容。
+> 结构：Python 工具已归到 `scripts/`；RTL 按 `rtl-developer` 规范；结构图在
+> `docs/figures/`（SVG + PNG）。
 
 ## 1. 结论
 
@@ -37,7 +39,7 @@
 
 ## 3. 改动清单
 
-- `model_v2.py`
+- `scripts/model_v2.py`
   - 重写时序内核：flit 粒度 Source / InputQueue，逐 edge 的 write → arbitrate → transfer → apply 顺序。
   - `fifo` 与 `voq` 共用同一套 cycle 语义；VOQ 按 `(src,dst)` 独立队列和深度。
   - `--cycles-csv`：输出逐 cycle 调试 CSV（FIFO 和 VOQ 两种表头）。
@@ -52,11 +54,11 @@
   - 复用 `fifo_sync` / `arbiter_rr`，无新 CBB 依赖。
 - `tb/xbar_2x2_voq_tb.sv`（新增）
   - 同一套 trace replay 和 packets CSV；`+DBG` 输出每个 VOQ 的 occupancy/valid、grant、lock。
-- `gen_directed.py`（新增）
+- `scripts/gen_directed.py`（新增）
   - 27 个定向 trace：单包四组合 × len 1/8、晚到包、独立双输出、同目的冲突（1/1、8/1、1/8、8/8、dst0/dst1）、错拍冲突、最大包长、FIFO/VOQ 打满、混合长度、HOL、RR 压力、同输入背靠背到达。
-- `run_cosim.py`（新增）
+- `scripts/run_cosim.py`（新增）
   - 一次运行模型 + RTL，逐包（按输出端口的完成顺序）和逐 cycle（cell-by-cell）精确比较；不一致直接打印第一个差异。
-- `run_sweep.py`（新增）
+- `scripts/run_sweep.py`（新增）
   - 生成 trace、跑 co-sim、聚合 3 个 seed 的指标并输出 Markdown 表；任何一组不 exact 就返回非 0。
 - `docs/progress.md`（本文件）
 - `results/matrix_v2/fifo_summary.json`、`results/matrix_v2/voq_summary.json`
@@ -75,7 +77,7 @@
 
 ```bash
 cd .
-python3 run_cosim.py \
+python3 scripts/run_cosim.py \
   --trace-jsonl results/rtl_trace.jsonl \
   --trace-csv results/rtl_trace.csv \
   --cycles 2020 --warmup 500 \
@@ -99,11 +101,11 @@ python3 run_cosim.py \
 命令：
 
 ```bash
-python3 gen_directed.py --outdir /tmp/directed --cycles 1200
+python3 scripts/gen_directed.py --outdir /tmp/directed --cycles 1200
 
 for f in /tmp/directed/*.jsonl; do
   b=${f%.jsonl}
-  python3 run_cosim.py \
+  python3 scripts/run_cosim.py \
     --trace-jsonl "$f" --trace-csv "$b.csv" \
     --cycles 1200 --warmup 0 \
     --dut fifo --mode fifo --total-buffer 64 \
@@ -134,7 +136,7 @@ done
 命令：
 
 ```bash
-python3 run_sweep.py \
+python3 scripts/run_sweep.py \
   --loads 0.5,0.8,0.95,1.0 --seeds 1,2,3 \
   --cycles 4000 --warmup 500 \
   --mode fifo --dut fifo \
@@ -156,7 +158,7 @@ python3 run_sweep.py \
 命令：
 
 ```bash
-python3 run_sweep.py \
+python3 scripts/run_sweep.py \
   --loads 0.5,0.8,0.95,1.0 --seeds 1,2,3 \
   --cycles 4000 --warmup 500 \
   --mode voq --dut voq --binary build/xbar_voq_tb \
@@ -175,12 +177,12 @@ python3 run_sweep.py \
 命令示例：
 
 ```bash
-python3 gen_trace.py \
+python3 scripts/gen_trace.py \
   --out /tmp/ov_fifo_l1.2.jsonl \
   --csv-out /tmp/ov_fifo_l1.2.csv \
   --load 1.2 --cycles 2000 --seed 7
 
-python3 run_cosim.py \
+python3 scripts/run_cosim.py \
   --trace-jsonl /tmp/ov_fifo_l1.2.jsonl \
   --trace-csv /tmp/ov_fifo_l1.2.csv \
   --cycles 2000 --warmup 300 \
@@ -196,7 +198,7 @@ python3 run_cosim.py \
 - 流量只有 uniform destination + 包长 1–8；还没有 bursty / correlated / 固定包长矩阵。旧 `sim.py` 的 bursty 流量没有接到 `model_v2` 的逐 cycle 契约里。
 - RTL packets CSV 只有 `port,src,len,start,end`，没有 `seq/dst`。目前包身份由“每输入保序 + 每个输出端口的完成顺序 + 逐 cycle head/grant 比较”确定，不是显式 seq tag；后续可以在 TB 里加 sideband seq 做更强的身份校验。
 - RTL 侧没有统计 p99/队列最大占用；表里的延迟和占用来自模型，但前提是模型与 RTL 已逐 cycle 完全一致。
-- RTL TB 的缓冲深度是编译期常量：FIFO 2 × 32、VOQ 4 × 16（总 64）。`run_cosim.py` 对 `--total-buffer != 64` 直接报错，避免模型和 RTL 静默使用不同容量。
+- RTL TB 的缓冲深度是编译期常量：FIFO 2 × 32、VOQ 4 × 16（总 64）。`scripts/run_cosim.py` 对 `--total-buffer != 64` 直接报错，避免模型和 RTL 静默使用不同容量。
 - XP per-crosspoint、OQ、CIOQ 未实现，按计划留到后续阶段。
 - 环境：iverilog 11.0，Python 3.10；只使用 iverilog/python，没有安装重型依赖，没有重型编译。中间文件都在 `/tmp/`，不在 vault 内。
 
@@ -204,7 +206,7 @@ python3 run_cosim.py \
 
 1. 在 TB 和模型里加入可配置的下游 `out_rdy` stall 序列（例如 `+RDY_PATTERN`），验证输出反压路径仍然逐 cycle 一致。
 2. 给 RTL packets CSV 增加显式 `seq`/`dst`（TB sideband 编码或单独 monitor），把包身份校验从“按端口顺序”升级为“按 seq”。
-3. 增加 bursty / 固定包长 / 双峰包长矩阵，复用同一 co-sim 契约和 `run_sweep.py`。
+3. 增加 bursty / 固定包长 / 双峰包长矩阵，复用同一 co-sim 契约和 `scripts/run_sweep.py`。
 4. 增加 RTL 侧或模型侧的 max queue occupancy、p99、每输入/输出吞吐对比。
 5. 视需要实现 IQ-VOQ 的更多参数化（每 VOQ 深度、等每队列深度 vs 等总 buffer 两组结果）。
 6. XP per-crosspoint 和 OQ/CIOQ 留到后续阶段；不在本轮引入。
@@ -226,4 +228,4 @@ iverilog -g2012 -I "$CBB_RTL" -o build/xbar_fifo_tb \
   "$CBB_RTL"/basic/dffr.sv
 ```
 
-VOQ：把 `rtl/xbar_2x2_fifo.sv tb/xbar_2x2_fifo_tb.sv` 换成 `rtl/xbar_2x2_voq.sv tb/xbar_2x2_voq_tb.sv`，输出改成 `build/xbar_voq_tb`。也可以用 `run_cosim.py --compile` / `run_sweep.py`（内部调用同一组命令）。
+VOQ：把 `rtl/xbar_2x2_fifo.sv tb/xbar_2x2_fifo_tb.sv` 换成 `rtl/xbar_2x2_voq.sv tb/xbar_2x2_voq_tb.sv`，输出改成 `build/xbar_voq_tb`。也可以用 `scripts/run_cosim.py --compile` / `scripts/run_sweep.py`（内部调用同一组命令）。

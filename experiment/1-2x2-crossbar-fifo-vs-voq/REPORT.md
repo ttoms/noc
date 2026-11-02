@@ -44,7 +44,7 @@
 
 ### 3.1 模型
 
-`model_v2.py` 是 flit 粒度的 cycle model：
+`scripts/model_v2.py` 是 flit 粒度的 cycle model：
 
 - 源端每 cycle 写 1 个 flit，包长 L 占用 L 个 cycle，最后还有 1 个 cycle turnaround
 - 写接纳只看 cycle 开始时的队列占用；同 cycle 读出不能给写腾位置
@@ -57,6 +57,11 @@
 - `rtl/xbar_2x2_fifo.sv`：2 个共享输入 FIFO，每输出一个 packet-granular RR 仲裁
 - `rtl/xbar_2x2_voq.sv`：4 个 VOQ，输入按 dst demux，每输出 packet-granular RR 仲裁
 - `tb/xbar_2x2_fifo_tb.sv`、`tb/xbar_2x2_voq_tb.sv`：trace replay、packets CSV、逐 cycle 调试 CSV
+- RTL 遵循 `rtl-developer` 规范：`dff/dffr` 显式状态、端口预处理、独立 `.sva`、quality gate + align
+
+![IQ-FIFO architecture](docs/figures/fifo-architecture.png)
+
+![IQ-VOQ architecture](docs/figures/voq-architecture.png)
 
 ### 3.3 复用的 CBB
 
@@ -71,17 +76,17 @@
 ### 3.4 参数
 
 - `FLIT_W`
-- `DEPTH`（FIFO）/ `VOQ_DEPTH`（RTL 当前固定为 16）
+- `DEPTH`（FIFO）/ `VOQ_DEPTH`（Phase 1 分别为 32 / 16；Phase 2 编译期按 4/8/16/32 覆盖）
 - `ARB_TYPE`：RR
 - `GRANT_LATENCY`：组合 grant
 - `MAX_PKT_LEN=8`
-- `total_buffer=64`
+- `total_buffer=64`（Phase 1）
 
 ## 4. 验证方法
 
 ### 4.1 共享 trace
 
-`gen_trace.py` 生成 `trace.jsonl` 和 `trace.csv`，模型和 RTL TB 读同一份：
+`scripts/gen_trace.py` 生成 `trace.jsonl` 和 `trace.csv`，模型和 RTL TB 读同一份：
 
 ```json
 {"seq": 0, "src": 0, "dst": 1, "len": 4, "arrival": 3}
@@ -91,11 +96,13 @@
 
 ### 4.2 逐包 / 逐 cycle 对比
 
-`run_cosim.py` 同时运行模型和 RTL：
+`scripts/run_cosim.py` 同时运行模型和 RTL：
 
 - 按输出端口的完成顺序比较 `(src, len, start, end)`
 - 可选逐 cycle 比较队列 occupancy、head、grant、lock、source write/stall
 - 任何一项不一致直接报错，不使用容差
+
+![Verification flow](docs/figures/verification-flow.png)
 
 ### 4.3 覆盖
 
@@ -137,29 +144,29 @@
 - 只有 uniform destination 和随机包长；bursty、固定包长、双峰包长还没接入
 - 没有 XP per-crosspoint、OQ、CIOQ
 - RTL packets CSV 没有显式 `seq/dst`，包身份靠“每输入保序 + 每端口完成顺序 + 逐 cycle 比较”
-- RTL TB 的 buffer 深度是编译期常量；`run_cosim.py` 对非 64 的 `--total-buffer` 会报错
+- Phase 1 的 RTL TB 使用固定 64 flits；Phase 2 已改为编译期 `DEPTH` 参数，用 `--depth` 指定 per-queue 容量
 
 ## 8. 复现
 
 ```bash
 # 依赖：Python 3.10+、iverilog 11+
-python3 gen_trace.py --out /tmp/trace.jsonl --csv-out /tmp/trace.csv \
+python3 scripts/gen_trace.py --out /tmp/trace.jsonl --csv-out /tmp/trace.csv \
   --load 0.8 --cycles 4000 --seed 1
 
-python3 run_cosim.py \
+python3 scripts/run_cosim.py \
   --trace-jsonl /tmp/trace.jsonl --trace-csv /tmp/trace.csv \
   --cycles 4000 --warmup 500 \
   --dut fifo --mode fifo --total-buffer 64 --compile \
   --outdir /tmp/cosim_fifo
 
-python3 run_cosim.py \
+python3 scripts/run_cosim.py \
   --trace-jsonl /tmp/trace.jsonl --trace-csv /tmp/trace.csv \
   --cycles 4000 --warmup 500 \
   --dut voq --mode voq --total-buffer 64 --compile \
   --outdir /tmp/cosim_voq
 ```
 
-批量 sweep 见 `run_sweep.py`，原始汇总在 `results/phase1/`。
+批量 sweep 见 `scripts/run_sweep.py`，原始汇总在 `results/phase1/`。
 
 ## 9. 下一阶段
 

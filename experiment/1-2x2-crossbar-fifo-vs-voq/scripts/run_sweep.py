@@ -21,6 +21,7 @@ import sys
 from run_cosim import DEFAULT_CBB_RTL, compile_rtl, run_one
 
 HERE = os.path.dirname(os.path.abspath(__file__))
+ROOT = os.path.dirname(HERE)
 
 
 def mean(values: list[float]) -> float:
@@ -54,8 +55,8 @@ def main() -> int:
     parser.add_argument("--mode", choices=["fifo", "voq"], default="fifo")
     parser.add_argument("--dut", choices=["fifo", "voq"], default="fifo")
     parser.add_argument("--total-buffer", type=int, default=64)
-    parser.add_argument("--outdir", default=os.path.join(HERE, "out", "sweep"))
-    parser.add_argument("--binary", default=os.path.join(HERE, "build", "xbar_fifo_tb"))
+    parser.add_argument("--outdir", default=os.path.join(ROOT, "out", "sweep"))
+    parser.add_argument("--binary", default=os.path.join(ROOT, "build", "xbar_fifo_tb"))
     parser.add_argument("--cbb-rtl", default=DEFAULT_CBB_RTL)
     parser.add_argument("--json-out", default=None)
     parser.add_argument("--markdown-out", default=None)

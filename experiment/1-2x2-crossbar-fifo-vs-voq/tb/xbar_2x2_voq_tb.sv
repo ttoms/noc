@@ -2,10 +2,13 @@
 // Trace-replay testbench for xbar_2x2_voq.
 // Trace CSV: seq,src,dst,len,arrival
 // Output CSV: port,src,len,start,end
-module xbar_2x2_voq_tb;
+module xbar_2x2_voq_tb #(
+    // Per-VOQ depth.  Override at compile time, e.g.
+    //   iverilog -P xbar_2x2_voq_tb.DEPTH=4 ...
+    parameter int DEPTH = 16
+);
 
     localparam int FLIT_W     = 32;
-    localparam int DEPTH      = 16;
     localparam int MAX_PKTS   = 100000;
     localparam int MAX_CYCLES = 200000;
 
@@ -27,8 +30,8 @@ module xbar_2x2_voq_tb;
     logic [1:0]             out_src_dbg;
 
     xbar_2x2_voq #(
-        .FLIT_W (FLIT_W),
-        .DEPTH  (DEPTH )
+        .FLIT_W    (FLIT_W),
+        .VOQ_DEPTH (DEPTH )
     ) dut (
         .clk         (clk),
         .rst_n       (rst_n),

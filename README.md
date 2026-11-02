@@ -4,9 +4,12 @@ NOC / on-chip interconnect modules and experiments.
 
 ## Experiments
 
-- [1-2x2-crossbar-fifo-vs-voq](experiment/1-2x2-crossbar-fifo-vs-voq/REPORT.md)
+- [1-2x2-crossbar-fifo-vs-voq](experiment/1-2x2-crossbar-fifo-vs-voq/README.md)
   - 2x2 packet crossbar: shared input FIFO vs per-destination VOQ
   - Phase 1: cycle-exact Python model + RTL + directed/load-sweep verification
+    ([report](experiment/1-2x2-crossbar-fifo-vs-voq/REPORT.md))
+  - Phase 2: per-queue capacity as an orthogonal variable, full 1152-run matrix
+    ([report](experiment/1-2x2-crossbar-fifo-vs-voq/reports/phase2.md))
 
 ## Layout
 
