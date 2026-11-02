@@ -5,9 +5,13 @@
 Supported queue placements:
   - fifo: one shared input FIFO per input (HOL blocking)
   - voq:  one queue per input per output (no HOL)
+  - xp:   one FIFO per crosspoint (input, output).  In the XP-only 2x2
+          configuration this has the same observable queue semantics as the
+          current IQ-VOQ reference, but it is a separate RTL/TB implementation
+          and can be compared independently against the same trace.
 
-Not yet implemented: output queues and per-crosspoint FIFOs. Those are phase 4
-in docs/architecture/2x2-crossbar.md.
+Not yet implemented: output queues (OQ) and combined input/output queues
+(CIOQ).
 
 Timing model
 ------------
@@ -87,10 +91,16 @@ class Flit:
 
 
 class InputQueue:
-    """Flit-level input queue.  `fifo` ignores dst, `voq` is per destination."""
+    """Flit-level queue bank.
+
+    `fifo` ignores dst; `voq` and `xp` keep one queue per (input, output).
+    The XP-only datapath performs the same flit-level no-drop operations as the
+    current IQ-VOQ reference, so sharing the queue-bank implementation keeps
+    the cycle contract identical without hiding any RTL difference.
+    """
 
     def __init__(self, mode: str, depth: int):
-        if mode not in ("fifo", "voq"):
+        if mode not in ("fifo", "voq", "xp"):
             raise ValueError(mode)
         self.mode = mode
         self.depth = depth
@@ -132,7 +142,9 @@ class InputQueue:
                 return None
             flit = self.fifo.popleft()
         else:
-            raise RuntimeError("pop_head on voq requires a destination")
+            raise RuntimeError(
+                "pop_head on a per-destination bank requires a destination"
+            )
         if expected is not None and flit is not expected:
             raise AssertionError("queue head moved during a cycle")
         self.flits -= 1
@@ -402,7 +414,7 @@ class Crossbar:
             req = [False, False]
             for src in range(2):
                 # head_for() is the shared-FIFO head for mode=fifo and the
-                # per-destination VOQ head for mode=voq.
+                # per-destination queue head for mode=voq/xp.
                 head = self.queues[src].head_for(out)
                 if head is None or head.packet.dst != out:
                     continue
@@ -471,7 +483,7 @@ class Crossbar:
             self.stats.max_input_occupancy = max(
                 self.stats.max_input_occupancy, q0, q1
             )
-            if self.mode == "voq":
+            if self.mode in ("voq", "xp"):
                 for queue in self.queues:
                     for occ in queue.voq_flits:
                         self.stats.max_single_voq_occupancy = max(
@@ -597,6 +609,7 @@ def summarize(stats: Stats, cycles: int, mode: str, depths: list[int]) -> dict:
         "max_total_queue_occupancy": stats.max_total_occupancy,
         "max_input_queue_occupancy": stats.max_input_occupancy,
         "max_single_voq_occupancy": stats.max_single_voq_occupancy,
+        "max_single_dst_queue_occupancy": stats.max_single_voq_occupancy,
         "source_stall_rate": stats.source_stall_cycles / (cycles * 2),
         "output_idle_cycles": stats.output_idle_cycles,
         "output_idle_rate": stats.output_idle_cycles / (cycles * 2),
@@ -650,7 +663,7 @@ def run(
         depths = [per_queue_depth, per_queue_depth]
     elif mode == "fifo":
         depths = [total_buffer // 2, total_buffer // 2]
-    elif mode == "voq":
+    elif mode in ("voq", "xp"):
         depths = [total_buffer // 4, total_buffer // 4]
     else:
         raise ValueError(mode)
@@ -728,10 +741,10 @@ def run(
 def main() -> int:
     parser = argparse.ArgumentParser(description="edge-accurate no-drop crossbar model")
     parser.add_argument("--trace", required=True)
-    parser.add_argument("--mode", choices=["fifo", "voq"], required=True)
+    parser.add_argument("--mode", choices=["fifo", "voq", "xp"], required=True)
     parser.add_argument("--total-buffer", type=int, default=64)
     parser.add_argument("--per-queue-depth", type=int, default=None,
-                        help="capacity per queue (FIFO per input, VOQ per VOQ)")
+                        help="capacity per queue (FIFO per input, VOQ/XP per crosspoint)")
     parser.add_argument("--cycles", type=int, default=100_000)
     parser.add_argument("--warmup", type=int, default=10_000)
     parser.add_argument("--csv", default=None)

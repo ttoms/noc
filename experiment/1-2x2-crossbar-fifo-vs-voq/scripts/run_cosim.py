@@ -36,11 +36,13 @@ CBB_SOURCES = [
 DUT_FILES = {
     "fifo": ("rtl/xbar_2x2_fifo.sv", "tb/xbar_2x2_fifo_tb.sv"),
     "voq": ("rtl/xbar_2x2_voq.sv", "tb/xbar_2x2_voq_tb.sv"),
+    "xp": ("rtl/xbar_2x2_xp.sv", "tb/xbar_2x2_xp_tb.sv"),
 }
 
 TB_TOP = {
     "fifo": "xbar_2x2_fifo_tb",
     "voq": "xbar_2x2_voq_tb",
+    "xp": "xbar_2x2_xp_tb",
 }
 
 
@@ -63,7 +65,7 @@ def compile_rtl(
         binary,
     ]
     if depth is not None:
-        # Compile-time per-queue capacity: FIFO DEPTH / VOQ VOQ_DEPTH.
+        # Compile-time per-queue capacity: FIFO DEPTH, VOQ/XP per-queue depth.
         cmd += ["-P", f"{TB_TOP[dut]}.DEPTH={depth}"]
     cmd += [
         os.path.join(ROOT, rtl_file),
@@ -141,7 +143,7 @@ def run_one(
 ) -> dict:
     if depth is None:
         # Backward-compatible total-buffer interpretation:
-        # FIFO total/2 per input, VOQ total/4 per VOQ.
+        # FIFO total/2 per input; VOQ/XP total/4 per crosspoint queue.
         depth = total_buffer // 2 if mode == "fifo" else total_buffer // 4
     if depth < 2:
         raise SystemExit(f"per-queue depth must be >= 2, got {depth}")
@@ -226,8 +228,8 @@ def main() -> int:
     parser.add_argument("--cycles", type=int, required=True)
     parser.add_argument("--outdir", default=os.path.join(ROOT, "out", "cosim"))
     parser.add_argument("--binary", default=os.path.join(ROOT, "build", "xbar_fifo_tb"))
-    parser.add_argument("--dut", choices=["fifo", "voq"], default="fifo")
-    parser.add_argument("--mode", choices=["fifo", "voq"], default="fifo")
+    parser.add_argument("--dut", choices=["fifo", "voq", "xp"], default="fifo")
+    parser.add_argument("--mode", choices=["fifo", "voq", "xp"], default="fifo")
     parser.add_argument("--total-buffer", type=int, default=64)
     parser.add_argument("--depth", type=int, default=None,
                         help="per-queue depth (overrides --total-buffer)")

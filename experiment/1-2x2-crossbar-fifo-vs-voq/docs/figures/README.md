@@ -4,7 +4,7 @@
 
 - `fifo-architecture.svg/png`：IQ-FIFO 结构
 - `voq-architecture.svg/png`：IQ-VOQ 结构
-- `xp-architecture.svg/png`：per-crosspoint FIFO（Phase 3 planned）
+- `xp-architecture.svg/png`：per-crosspoint FIFO（Phase 3 实现；图本身未改动）
 - `verification-flow.svg/png`：模型/RTL 共用 trace 的逐包/逐 cycle 验证流程
 
 重新渲染：

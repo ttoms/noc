@@ -229,3 +229,21 @@ iverilog -g2012 -I "$CBB_RTL" -o build/xbar_fifo_tb \
 ```
 
 VOQ：把 `rtl/xbar_2x2_fifo.sv tb/xbar_2x2_fifo_tb.sv` 换成 `rtl/xbar_2x2_voq.sv tb/xbar_2x2_voq_tb.sv`，输出改成 `build/xbar_voq_tb`。也可以用 `scripts/run_cosim.py --compile` / `scripts/run_sweep.py`（内部调用同一组命令）。
+
+## 8. Phase 3 addendum（2026-11-03）
+
+Phase 3 已完成 XP per-crosspoint FIFO，并更新了本文件第 5/6 节中“XP 未实现”
+的旧状态：
+
+- 新增 `rtl/xbar_2x2_xp.sv`、`tb/xbar_2x2_xp_tb.sv`、`sva/xbar_2x2_xp.sva`。
+- `model_v2.py` 增加 `xp` mode；`run_cosim.py` 支持 XP DUT。
+- 新增 `scripts/run_phase3.py`、`scripts/analyze_phase3.py`、
+  `scripts/compare_xp_voq.py`。
+- Core matrix 144/144 exact；XP 与 VOQ 在 48/48 seed-pair 上指标完全相同，
+  两套 RTL 的逐包/逐 cycle CSV 也全部相等。
+- 等总 buffer 下 XP 相对 FIFO：16/32/64 flits 为 +0.58/+3.99/+6.61pp。
+- XP-only、2x2、单 outstanding source 下，XP 与当前 IQ-VOQ 可观测行为等价；
+  差异在物理位置/扩展方式，不在本轮吞吐。
+- 完整报告见 [reports/phase3.md](../reports/phase3.md)，数据见
+  [results/phase3/](../results/phase3/)。
+- OQ/CIOQ 仍未实现；下游 `out_rdy` 反压仍未注入。

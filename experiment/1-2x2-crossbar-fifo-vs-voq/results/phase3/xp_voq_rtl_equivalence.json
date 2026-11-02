@@ -1,0 +1,1257 @@
+{
+  "traces": 31,
+  "depths": [
+    4,
+    8,
+    16,
+    32
+  ],
+  "runs": 124,
+  "all_xp_model_exact": true,
+  "all_voq_model_exact": true,
+  "all_packet_files_equal": true,
+  "all_cycle_files_equal": true,
+  "all_equivalent": true,
+  "cases": [
+    {
+      "depth": 4,
+      "trace": "burst_s0_arrivals",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 4,
+      "trace": "conflict_d0_l1_l1",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 4,
+      "trace": "conflict_d0_l1_l8",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 4,
+      "trace": "conflict_d0_l8_l1",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 4,
+      "trace": "conflict_d0_l8_l8",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 4,
+      "trace": "conflict_d0_l8_l8_gap1",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 4,
+      "trace": "conflict_d0_l8_l8_gap2",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 4,
+      "trace": "conflict_d0_l8_l8_gap7",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 4,
+      "trace": "conflict_d1_l1_l1",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 4,
+      "trace": "conflict_d1_l1_l8",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 4,
+      "trace": "conflict_d1_l8_l1",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 4,
+      "trace": "conflict_d1_l8_l8",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 4,
+      "trace": "cross_s0d0_l3_s1d1_l5",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 4,
+      "trace": "cross_s0d1_l4_s1d0_l2_a3",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 4,
+      "trace": "full_d0_l8_x12",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 4,
+      "trace": "full_d0_mixed",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 4,
+      "trace": "hol_alt_s0",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 4,
+      "trace": "random_l0.5_s1",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 4,
+      "trace": "random_l0.8_s1",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 4,
+      "trace": "random_l0.95_s1",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 4,
+      "trace": "random_l1.0_s1",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 4,
+      "trace": "rr_d0_l1_x16",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 4,
+      "trace": "single_late_s0_d1_l5_a10",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 4,
+      "trace": "single_s0_d0_l1",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 4,
+      "trace": "single_s0_d0_l8",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 4,
+      "trace": "single_s0_d1_l1",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 4,
+      "trace": "single_s0_d1_l8",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 4,
+      "trace": "single_s1_d0_l1",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 4,
+      "trace": "single_s1_d0_l8",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 4,
+      "trace": "single_s1_d1_l1",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 4,
+      "trace": "single_s1_d1_l8",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 8,
+      "trace": "burst_s0_arrivals",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 8,
+      "trace": "conflict_d0_l1_l1",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 8,
+      "trace": "conflict_d0_l1_l8",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 8,
+      "trace": "conflict_d0_l8_l1",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 8,
+      "trace": "conflict_d0_l8_l8",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 8,
+      "trace": "conflict_d0_l8_l8_gap1",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 8,
+      "trace": "conflict_d0_l8_l8_gap2",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 8,
+      "trace": "conflict_d0_l8_l8_gap7",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 8,
+      "trace": "conflict_d1_l1_l1",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 8,
+      "trace": "conflict_d1_l1_l8",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 8,
+      "trace": "conflict_d1_l8_l1",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 8,
+      "trace": "conflict_d1_l8_l8",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 8,
+      "trace": "cross_s0d0_l3_s1d1_l5",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 8,
+      "trace": "cross_s0d1_l4_s1d0_l2_a3",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 8,
+      "trace": "full_d0_l8_x12",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 8,
+      "trace": "full_d0_mixed",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 8,
+      "trace": "hol_alt_s0",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 8,
+      "trace": "random_l0.5_s1",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 8,
+      "trace": "random_l0.8_s1",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 8,
+      "trace": "random_l0.95_s1",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 8,
+      "trace": "random_l1.0_s1",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 8,
+      "trace": "rr_d0_l1_x16",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 8,
+      "trace": "single_late_s0_d1_l5_a10",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 8,
+      "trace": "single_s0_d0_l1",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 8,
+      "trace": "single_s0_d0_l8",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 8,
+      "trace": "single_s0_d1_l1",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 8,
+      "trace": "single_s0_d1_l8",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 8,
+      "trace": "single_s1_d0_l1",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 8,
+      "trace": "single_s1_d0_l8",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 8,
+      "trace": "single_s1_d1_l1",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 8,
+      "trace": "single_s1_d1_l8",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 16,
+      "trace": "burst_s0_arrivals",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 16,
+      "trace": "conflict_d0_l1_l1",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 16,
+      "trace": "conflict_d0_l1_l8",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 16,
+      "trace": "conflict_d0_l8_l1",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 16,
+      "trace": "conflict_d0_l8_l8",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 16,
+      "trace": "conflict_d0_l8_l8_gap1",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 16,
+      "trace": "conflict_d0_l8_l8_gap2",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 16,
+      "trace": "conflict_d0_l8_l8_gap7",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 16,
+      "trace": "conflict_d1_l1_l1",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 16,
+      "trace": "conflict_d1_l1_l8",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 16,
+      "trace": "conflict_d1_l8_l1",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 16,
+      "trace": "conflict_d1_l8_l8",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 16,
+      "trace": "cross_s0d0_l3_s1d1_l5",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 16,
+      "trace": "cross_s0d1_l4_s1d0_l2_a3",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 16,
+      "trace": "full_d0_l8_x12",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 16,
+      "trace": "full_d0_mixed",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 16,
+      "trace": "hol_alt_s0",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 16,
+      "trace": "random_l0.5_s1",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 16,
+      "trace": "random_l0.8_s1",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 16,
+      "trace": "random_l0.95_s1",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 16,
+      "trace": "random_l1.0_s1",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 16,
+      "trace": "rr_d0_l1_x16",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 16,
+      "trace": "single_late_s0_d1_l5_a10",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 16,
+      "trace": "single_s0_d0_l1",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 16,
+      "trace": "single_s0_d0_l8",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 16,
+      "trace": "single_s0_d1_l1",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 16,
+      "trace": "single_s0_d1_l8",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 16,
+      "trace": "single_s1_d0_l1",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 16,
+      "trace": "single_s1_d0_l8",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 16,
+      "trace": "single_s1_d1_l1",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 16,
+      "trace": "single_s1_d1_l8",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 32,
+      "trace": "burst_s0_arrivals",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 32,
+      "trace": "conflict_d0_l1_l1",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 32,
+      "trace": "conflict_d0_l1_l8",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 32,
+      "trace": "conflict_d0_l8_l1",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 32,
+      "trace": "conflict_d0_l8_l8",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 32,
+      "trace": "conflict_d0_l8_l8_gap1",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 32,
+      "trace": "conflict_d0_l8_l8_gap2",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 32,
+      "trace": "conflict_d0_l8_l8_gap7",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 32,
+      "trace": "conflict_d1_l1_l1",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 32,
+      "trace": "conflict_d1_l1_l8",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 32,
+      "trace": "conflict_d1_l8_l1",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 32,
+      "trace": "conflict_d1_l8_l8",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 32,
+      "trace": "cross_s0d0_l3_s1d1_l5",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 32,
+      "trace": "cross_s0d1_l4_s1d0_l2_a3",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 32,
+      "trace": "full_d0_l8_x12",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 32,
+      "trace": "full_d0_mixed",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 32,
+      "trace": "hol_alt_s0",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 32,
+      "trace": "random_l0.5_s1",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 32,
+      "trace": "random_l0.8_s1",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 32,
+      "trace": "random_l0.95_s1",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 32,
+      "trace": "random_l1.0_s1",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 32,
+      "trace": "rr_d0_l1_x16",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 32,
+      "trace": "single_late_s0_d1_l5_a10",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 32,
+      "trace": "single_s0_d0_l1",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 32,
+      "trace": "single_s0_d0_l8",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 32,
+      "trace": "single_s0_d1_l1",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 32,
+      "trace": "single_s0_d1_l8",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 32,
+      "trace": "single_s1_d0_l1",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 32,
+      "trace": "single_s1_d0_l8",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 32,
+      "trace": "single_s1_d1_l1",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    },
+    {
+      "depth": 32,
+      "trace": "single_s1_d1_l8",
+      "xp_model_exact": true,
+      "voq_model_exact": true,
+      "rtl_packets_equal": true,
+      "rtl_cycles_equal": true,
+      "packet_errors": [],
+      "cycle_errors": []
+    }
+  ]
+}

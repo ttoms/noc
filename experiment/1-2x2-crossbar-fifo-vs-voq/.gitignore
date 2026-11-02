@@ -9,4 +9,8 @@ results/*
 !results/phase2/*.json
 !results/phase2/*.csv
 !results/phase2/*.md
+!results/phase3/
+!results/phase3/*.json
+!results/phase3/*.csv
+!results/phase3/*.md
 out/

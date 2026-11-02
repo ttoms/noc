@@ -1,0 +1,29 @@
+// Protocol assertions for xbar_2x2_xp (included inside the module).
+// Not compiled unless SVA_ON is defined (iverilog 4.x does not support these).
+
+property p_xp_out0_stable;
+    @(posedge clk) disable iff (!rst_n)
+    (out_vld[0] && !out_rdy[0]) |=> out_vld[0] &&
+        $stable(out_data[0]) && $stable(out_sop[0]) && $stable(out_eop[0]);
+endproperty
+
+property p_xp_out1_stable;
+    @(posedge clk) disable iff (!rst_n)
+    (out_vld[1] && !out_rdy[1]) |=> out_vld[1] &&
+        $stable(out_data[1]) && $stable(out_sop[1]) && $stable(out_eop[1]);
+endproperty
+
+property p_xp_out0_markers;
+    @(posedge clk) disable iff (!rst_n)
+    (out_sop[0] |-> out_vld[0]) && (out_eop[0] |-> out_vld[0]);
+endproperty
+
+property p_xp_out1_markers;
+    @(posedge clk) disable iff (!rst_n)
+    (out_sop[1] |-> out_vld[1]) && (out_eop[1] |-> out_vld[1]);
+endproperty
+
+assert property (p_xp_out0_stable);
+assert property (p_xp_out1_stable);
+assert property (p_xp_out0_markers);
+assert property (p_xp_out1_markers);

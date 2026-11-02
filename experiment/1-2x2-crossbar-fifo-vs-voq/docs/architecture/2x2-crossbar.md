@@ -41,6 +41,7 @@
 - 输入写入受目标 XP FIFO 反压；输出读出受下游反压。
 - XP-only 变体不另设输入队列：输入一次只持有一个包；目标 XP FIFO 满时输入 stall。
 - 可选 `XP+VOQ`：输入 VOQ 在 XP 之前，输入可选择有空间的 XP FIFO；v1 不做，先做 XP-only，避免一次引入两层队列。
+- Phase 3 实现：`rtl/xbar_2x2_xp.sv` + `tb/xbar_2x2_xp_tb.sv`。当前 IQ-VOQ 参考实现同样暴露 4 个 per-(src,dst) 队列，且源端一次只有一个 outstanding packet；因此 XP-only 与本实验的 IQ-VOQ 在可观测行为上等价。差异是物理位置和扩展方式，不是本轮 2x2 的吞吐差异；Phase 3 用独立 RTL 逐包/逐 cycle 验证这一点。
 
 ## 3. 接口
 
@@ -234,16 +235,16 @@ v2：
 
 ## 11. 阶段
 
-- P0：本文档 + 接口/时序契约（当前）
-- P1：模型 v2（no-drop + backpressure）+ trace 生成器 + 指标
-- P2：RTL IQ_FIFO + TB + 模型/RTL 对齐
-- P3：RTL IQ_VOQ + 对齐 + 对比
-- P4：RTL XP per-crosspoint + 对齐 + 对比
-- P5：OQ/CIOQ（可选）+ 实验矩阵 + 报告
+- P0：本文档 + 接口/时序契约（已完成）
+- P1：模型 v2（no-drop + backpressure）+ trace 生成器 + 指标（已完成）
+- P2：RTL IQ_FIFO + TB + 模型/RTL 对齐（已完成）
+- P3：RTL IQ_VOQ + 对齐 + 对比（已完成）
+- P4：RTL XP per-crosspoint + 对齐 + 对比（已完成，Phase 3）
+- P5：OQ/CIOQ（可选）+ 实验矩阵 + 报告（OQ/CIOQ 未做）
 
 ## 12. 风险
 
-- XP-only 没有输入队列时，输入目标 XP FIFO 满会 stall，仍可能产生输入侧 HOL；需要与 IQ_VOQ 区分。
+- XP-only 没有输入队列时，输入目标 XP FIFO 满会 stall，仍可能产生输入侧 HOL；需要与 IQ_VOQ 区分。Phase 3 实测：在 2x2、源端单 outstanding packet 下，XP-only 与当前 IQ-VOQ 可观测行为等价；加入 XP+VOQ、多 outstanding 或 input scheduling 后才会出现结构差异。
 - XP 有 4 个队列，面积/时序成本高于 FIFO；必须同时报告等总 buffer 和等每队列深度。
 - 包粒度 grant 锁定期间，输出无法切换，长包会拉高其他输入的等待时间。
 - VOQ/XP 允许跨目的重排；如果 SoC 要求全局严格保序，需要额外约束，结论会不同。
