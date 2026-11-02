@@ -1,0 +1,8 @@
+build/
+__pycache__/
+*.pyc
+results/*
+!results/phase1/
+!results/phase1/*.json
+!results/phase1/*.md
+out/
