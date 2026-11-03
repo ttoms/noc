@@ -4,7 +4,7 @@ initial begin
         $fatal(1, "[%m] N must be >= 1, got %0d", N);
 end
 
-always_comb begin
+always @(*) begin
     if (|ohot)
         assert ($onehot(ohot));
 end

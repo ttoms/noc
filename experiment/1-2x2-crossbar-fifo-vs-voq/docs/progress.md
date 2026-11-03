@@ -312,7 +312,7 @@ VOQ 的吞吐压在了 source turnaround 上。数据见
 - **Phase 2 gap 0 完成**：1152/1152 exact；VOQ 163/192 strata 更好，平均
   +6.22pp；等总 buffer 16/32/64 为 +3.46/+5.71/+7.35pp。数据见
   [../results/phase2_gap0/](../results/phase2_gap0/)。
-- 仍未覆盖：5+ seed/CI、Phase 1–3 报告替换旧数字。
+- 5+ seed/CI 与修正报告见 §9.6。
 
 ### 9.4 输出反压、协议检查与过载（2026-11-03）
 
@@ -332,8 +332,9 @@ VOQ 的吞吐压在了 source turnaround 上。数据见
 - **SVA 实际执行**：iverilog 11 / Verilator 4.038 不支持并发 `assert property`，
   已把 `.sva` 改成同语义的 posedge 立即断言（SOP/EOP 标记、反压期间 flit 稳定、
   包内 sel 不变），并为 vendored `fifo_sync` / `arbiter_rr` / `bin2ohot` 提供
-  本地运行时断言。`-DSVA_ON -I sva` 编译后，FIFO/VOQ/XP 在 4000 cycles、
-  `period=5 high=3` 下断言全部通过，同时逐包/逐 cycle exact。
+  本地运行时断言。`bash scripts/run_sva.sh`（等价于 `-DSVA_ON -I sva`）编译后，
+  FIFO/VOQ/XP 在 4000 cycles、`period=5 high=3` 下断言全部通过，同时逐包/
+  逐 cycle exact。
 - 仍未覆盖：5+ seeds/CI、Phase 1–3 报告替换旧数字。
 
 ### 9.6 5-seed / CI 与报告

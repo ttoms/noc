@@ -162,6 +162,8 @@ python3 scripts/run_sweep.py \
 - `scripts/run_phase3.py`：Phase 3 FIFO/VOQ/XP core matrix 驱动
 - `scripts/analyze_phase3.py`：Phase 3 配对 delta、等总 buffer、XP/VOQ 等价汇总
 - `scripts/compare_xp_voq.py`：XP 与 VOQ 两套 RTL 的逐包/逐 cycle 等价检查
+- `scripts/ci_from_raw.py`：从 raw_runs 计算配对差值 95% CI
+- `scripts/run_sva.sh`：用 `SVA_ON` 编译三个带运行时断言的 TB
 - `rtl/`：FIFO、VOQ、XP 三套参数化 RTL（遵循 rtl-developer 规范）
 - `sva/`：RTL 协议断言（FIFO/VOQ/XP）
 - `tb/`：trace replay + 调试 CSV（顶层 `DEPTH` 参数）
