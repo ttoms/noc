@@ -267,13 +267,13 @@ Phase 3 已完成 XP per-crosspoint FIFO，并更新了本文件第 5/6 节中�
 - **注意**：本文件第 1–5 节及 Phase 1/2/3 报告中的吞吐、HOL 数字来自旧的
   gap 1 + 包完成口径，必须先按新口径重跑后才能引用。
 
-### 9.1 Phase 1 重跑（gap 0，4000 cycles / warmup 500 / 3 seeds）
+### 9.1 Phase 1 重跑（gap 0，4000 cycles / warmup 500 / 5 seeds）
 
-FIFO 与 VOQ 均 12/12 exact。逐 flit 握手口径下：
+FIFO 与 VOQ 均 20/20 exact。逐 flit 握手口径下：
 
-- FIFO utilization：load 0.5 / 0.8 / 0.95 / 1.0 = 0.490 / 0.715 / 0.717 / 0.715
-- VOQ utilization：0.489 / 0.801 / 0.896 / 0.892
-- load 1.0 的 FIFO HOL rate = 0.557，其中 output_busy 0.476、arb_loss 0.081
+- FIFO utilization：load 0.5 / 0.8 / 0.95 / 1.0 = 0.4887 / 0.7128 / 0.7131 / 0.7109
+- VOQ utilization：0.4885 / 0.8036 / 0.8938 / 0.8942
+- load 1.0 的 FIFO HOL rate = 0.565，其中 output_busy 0.482、arb_loss 0.083
 - 旧 VOQ 数字（约 0.813）主要是被 `SOURCE_GAP=1` 的源端空拍压住；gap 0 下
   VOQ 才接近网络本身的输出瓶颈，FIFO 仍被 HOL 卡在约 0.715。
 
@@ -309,8 +309,8 @@ VOQ 的吞吐压在了 source turnaround 上。数据见
   - VOQ admission：14.2/19.3/19.9 → 14.5/20.0/20.1，基本不变
   - VOQ arrival：31/123/207 → 34/307/496，同样增长
   结论：**latency 应引用 admission 口径**；arrival 口径只在 load 低于网络容量时有效。
-- **Phase 2 gap 0 完成**：1152/1152 exact；VOQ 163/192 strata 更好，平均
-  +6.22pp；等总 buffer 16/32/64 为 +3.46/+5.71/+7.35pp。数据见
+- **Phase 2 gap 0 完成**：1920/1920 exact（5 seeds）；VOQ 159/192 strata
+  更好，平均 +6.27pp；等总 buffer 16/32/64 为 +3.50/+5.79/+7.40pp。数据见
   [../results/phase2_gap0/](../results/phase2_gap0/)。
 - 5+ seed/CI 与修正报告见 §9.6。
 
@@ -341,10 +341,11 @@ VOQ 的吞吐压在了 source turnaround 上。数据见
 
 - Phase 1：5 seeds，utilization CI 已写入
   [reports/phase1_gap0.md](../reports/phase1_gap0.md)。
-- Phase 2：全矩阵 3 seeds + core 5 seeds；core 数据
-  [results/phase2_gap0/core_5seed.json](../results/phase2_gap0/core_5seed.json)，
-  报告 [reports/phase2_gap0.md](../reports/phase2_gap0.md)。
+- Phase 2：全矩阵 5 seeds（1920 runs，1920/1920 exact）；VOQ 159/192 strata
+  更好，平均 +6.27pp；等总 buffer 16/32/64 为 +3.50/+5.79/+7.40pp。数据
+  [results/phase2_gap0/](../results/phase2_gap0/)，报告
+  [reports/phase2_gap0.md](../reports/phase2_gap0.md)。
 - Phase 3：5 seeds（240 runs，240/240 exact，XP/VOQ 80/80 seed-pairs 相等），
   报告 [reports/phase3_gap0.md](../reports/phase3_gap0.md)。
 - `scripts/ci_from_raw.py`：从 raw_runs 计算配对差值 95% t CI。
-- Phase 2 全矩阵 5-seed 仍在后台运行；完成后替换 core-only 说明。
+- Phase 2 全矩阵 5-seed 已完成，结果已入库。
