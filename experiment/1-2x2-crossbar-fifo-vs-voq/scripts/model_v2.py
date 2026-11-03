@@ -19,8 +19,10 @@ The model mirrors the RTL pipeline edge by edge:
 
   * A source loads one trace packet at cycle `arrival` (or later if busy) and
     writes its flits one per cycle, `loaded + 1` onwards.  At most one packet
-    is outstanding per input.  After the last flit there is a one-cycle turn
-    around before the next packet can be loaded, which matches the RTL TB.
+    is outstanding per input.  By default (`SOURCE_GAP=0`) an already-arrived
+    next packet is loaded on the last flit's edge, so there is no empty cycle
+    between packets.  `SOURCE_GAP=1` keeps the old one-cycle turnaround for
+    reproducing legacy results.
   * The input FIFO is show-ahead.  A flit written at the end of cycle t is
     visible to the arbiter in cycle t+1.  A write is accepted only when the
     FIFO is non-full *at the start of the cycle*; a same-cycle read does not
@@ -189,6 +191,9 @@ class Stats:
     delivered_flits: int = 0
     latency_sum: int = 0
     latency_n: int = 0
+    admit_latency_sum: int = 0
+    admit_latency_n: int = 0
+    admit_latencies: list[int] = field(default_factory=list)
     queue_latency_sum: int = 0
     queue_latency_n: int = 0
     queue_occupancy_sum: int = 0
@@ -197,7 +202,13 @@ class Stats:
     max_input_occupancy: int = 0
     max_single_voq_occupancy: int = 0
     output_idle_cycles: int = 0
+    output_backpressure_cycles: int = 0
     hol_cycles: int = 0
+    hol_output_busy_cycles: int = 0
+    hol_arb_loss_cycles: int = 0
+    arb_loss_cycles: int = 0
+    arb_loss_events: int = 0
+    out_flits: list[int] = field(default_factory=lambda: [0, 0])
     per_src_flits: list[int] = field(default_factory=lambda: [0, 0])
     per_dst_flits: list[int] = field(default_factory=lambda: [0, 0])
     delivered: list[Packet] = field(default_factory=list)
@@ -213,6 +224,9 @@ class Stats:
         self.delivered_flits = 0
         self.latency_sum = 0
         self.latency_n = 0
+        self.admit_latency_sum = 0
+        self.admit_latency_n = 0
+        self.admit_latencies = []
         self.queue_latency_sum = 0
         self.queue_latency_n = 0
         self.queue_occupancy_sum = 0
@@ -221,7 +235,13 @@ class Stats:
         self.max_input_occupancy = 0
         self.max_single_voq_occupancy = 0
         self.output_idle_cycles = 0
+        self.output_backpressure_cycles = 0
         self.hol_cycles = 0
+        self.hol_output_busy_cycles = 0
+        self.hol_arb_loss_cycles = 0
+        self.arb_loss_cycles = 0
+        self.arb_loss_events = 0
+        self.out_flits = [0, 0]
         self.per_src_flits = [0, 0]
         self.per_dst_flits = [0, 0]
         self.delivered = []
@@ -233,12 +253,15 @@ class Source:
     """One-outstanding-packet source that writes one flit per cycle.
 
     Loading a packet at cycle ``t`` makes it visible to the source one cycle
-    later; the first flit is offered to the queue at cycle ``t+1``.  This is
+    later; the first flit is offered to the queue at cycle ``t+1``.  With
+    ``gap=0`` the next already-arrived packet is loaded on the last flit's
+    edge, so back-to-back packets have no empty cycle between them.  This is
     exactly the RTL TB source register behaviour.
     """
 
-    def __init__(self, src: int, packets: list[Packet]):
+    def __init__(self, src: int, packets: list[Packet], gap: int = 1):
         self.src = src
+        self.gap = gap
         self.packets = sorted(packets, key=lambda p: (p.arrival, p.seq))
         self.idx = 0
         self.current: Packet | None = None
@@ -285,12 +308,30 @@ class Source:
             self.current = None
             self.loaded_cycle = None
             self.flit_idx = 0
+            # gap=0: load the next already-arrived packet at this edge, so its
+            # first flit is offered in the very next cycle (back-to-back).
+            if self.gap == 0 and self.idx < len(self.packets):
+                nxt = self.packets[self.idx]
+                if nxt.arrival <= cycle:
+                    self.current = nxt
+                    self.loaded_cycle = cycle
+                    self.idx += 1
         return flit
 
 
 class Crossbar:
-    def __init__(self, mode: str, depths: list[int], sources: list[Source], warmup: int):
+    def __init__(
+        self,
+        mode: str,
+        depths: list[int],
+        sources: list[Source],
+        warmup: int,
+        rdy_period: int = 0,
+        rdy_high: int = 0,
+    ):
         self.mode = mode
+        self.rdy_period = rdy_period
+        self.rdy_high = rdy_high
         self.queues = [InputQueue(mode, depths[i]) for i in range(2)]
         self.sources = sources
         self.warmup = warmup
@@ -303,24 +344,74 @@ class Crossbar:
         self.debug = False
 
     # -- statistics helpers -------------------------------------------------
-    def _hol_this_cycle(self) -> bool:
+    def _ready(self, out: int, cycle: int) -> bool:
+        if self.rdy_period <= 0:
+            return True
+        return ((cycle + 2 * out) % self.rdy_period) < self.rdy_high
+
+    def _count_arbitration(self, sel: list[int | None], granted: list[bool]) -> None:
+        """Count same-cycle arbitration losses, including single-flit packets."""
+        events = 0
+        for out in range(2):
+            if self.locked[out] or not granted[out]:
+                continue
+            winner = sel[out]
+            if winner is None:
+                continue
+            loser = 1 - winner
+            # A source locked to the other output is not requesting this one.
+            if self.locked[1 - out] and self.locked_src[1 - out] == loser:
+                continue
+            head = self.queues[loser].head_for(out)
+            if head is not None and head.packet.dst == out:
+                events += 1
+        if events:
+            self.stats.arb_loss_events += events
+            self.stats.arb_loss_cycles += 1
+
+    def _count_hol(self, sel: list[int | None], granted: list[bool]) -> None:
+        """FIFO HOL: head is blocked while a later packet could use another output.
+
+        Two independent causes are counted:
+          - output busy: the head's destination output is locked by the other input
+          - arbitration loss: the head's output is free but the other input won it
+            this cycle (single-flit packets included)
+        """
         if self.mode != "fifo":
-            return False
-        busy_inputs = {self.locked_src[o] for o in range(2) if self.locked[o]}
-        busy_outputs = {o for o in range(2) if self.locked[o]}
+            return
+        output_busy = False
+        arb_loss = False
         for src in range(2):
-            if src in busy_inputs:
+            # An input currently serving a packet is not a HOL candidate.
+            if any(self.locked[o] and self.locked_src[o] == src for o in range(2)):
                 continue
             queue = self.queues[src]
             if not queue.fifo:
                 continue
             head = queue.fifo[0]
-            if head.packet.dst not in busy_outputs:
+            hd = head.packet.dst
+            if self.locked[hd] and self.locked_src[hd] != src:
+                cause = "output"
+            elif granted[hd] and sel[hd] != src:
+                cause = "arb"
+            else:
                 continue
-            for flit in list(queue.fifo)[1:]:
-                if flit.sop and flit.packet.dst not in busy_outputs:
-                    return True
-        return False
+            alt = any(
+                f.sop and f.packet.dst != hd and not self.locked[f.packet.dst]
+                for f in list(queue.fifo)[1:]
+            )
+            if not alt:
+                continue
+            if cause == "output":
+                output_busy = True
+            else:
+                arb_loss = True
+        if output_busy:
+            self.stats.hol_output_busy_cycles += 1
+        if arb_loss:
+            self.stats.hol_arb_loss_cycles += 1
+        if output_busy or arb_loss:
+            self.stats.hol_cycles += 1
 
     def _record_delivery(self, flit: Flit, cycle: int, measure: bool) -> None:
         packet = flit.packet
@@ -328,13 +419,15 @@ class Crossbar:
         if not measure:
             return
         self.stats.delivered_pkts += 1
-        self.stats.delivered_flits += packet.length
-        self.stats.per_src_flits[packet.src] += packet.length
-        self.stats.per_dst_flits[packet.dst] += packet.length
         assert packet.start is not None and packet.accepted is not None
         # Labels use the RTL TB convention: physical cycle - 1.
         self.stats.latency_sum += (cycle - 1) - packet.arrival
         self.stats.latency_n += 1
+        if packet.accepted >= self.warmup:
+            admit_lat = (cycle - 1) - packet.accepted
+            self.stats.admit_latency_sum += admit_lat
+            self.stats.admit_latency_n += 1
+            self.stats.admit_latencies.append(admit_lat)
         self.stats.queue_latency_sum += packet.start - packet.accepted
         self.stats.queue_latency_n += 1
         self.stats.delivered.append(packet.copy())
@@ -381,6 +474,7 @@ class Crossbar:
     def step(self) -> None:
         cycle = self.cycle
         measure = cycle >= self.warmup
+        rdy = [self._ready(0, cycle), self._ready(1, cycle)]
         snap = self._debug_snapshot() if self.debug else None
 
         # 1) Source decisions use the start-of-cycle queue occupancy.  The
@@ -392,9 +486,6 @@ class Crossbar:
             )
             if flit is not None:
                 writes.append((src, flit))
-
-        if measure and self._hol_this_cycle():
-            self.stats.hol_cycles += 1
 
         # 2) Arbitration on the head flits visible at the start of the cycle.
         #    Output 0 is evaluated first, exactly like the RTL request masks.
@@ -438,13 +529,32 @@ class Crossbar:
             # RR pointer advances on the granted source, like arbiter_rr.
             self.out_rr[out] = 1 - src
 
+        if measure:
+            self._count_arbitration(sel, granted)
+            self._count_hol(sel, granted)
+
         # 3) Output flits present this cycle (locked or newly granted).
+        #    A flit only transfers on out_vld & out_rdy; otherwise the lock
+        #    (including a single-flit grant) is held until the downstream is ready.
         transfers: list[tuple[int, int, Flit]] = []
         for out in range(2):
             if sel[out] is None or sel_flit[out] is None:
                 continue
             flit = sel_flit[out]
+            if not rdy[out]:
+                if measure:
+                    self.stats.output_backpressure_cycles += 1
+                if granted[out] and not self.locked[out]:
+                    self.locked[out] = True
+                    self.locked_src[out] = sel[out]
+                continue
             transfers.append((out, sel[out], flit))
+            if measure:
+                # Throughput is per-flit handshake, not per completed packet.
+                self.stats.delivered_flits += 1
+                self.stats.out_flits[out] += 1
+                self.stats.per_src_flits[sel[out]] += 1
+                self.stats.per_dst_flits[out] += 1
             packet = flit.packet
             if flit.sop:
                 # TB samples at negedge and prints cycle-1.
@@ -491,7 +601,7 @@ class Crossbar:
                         )
 
         if self.debug:
-            self._debug_row(snap, cycle, writes, transfers, granted)
+            self._debug_row(snap, cycle, writes, granted, sel, sel_flit)
 
         self.cycle += 1
 
@@ -500,11 +610,17 @@ class Crossbar:
         snap: dict,
         cycle: int,
         writes: list[tuple[int, Flit]],
-        transfers: list[tuple[int, int, Flit]],
         granted: list[bool],
+        sel: list[int | None],
+        sel_flit: list[Flit | None],
     ) -> None:
         wr = {src: flit for src, flit in writes}
-        tr = {out: (src, flit) for out, src, flit in transfers}
+        # Debug shows the selected output even when downstream is not ready.
+        present = {
+            out: (sel[out], sel_flit[out])
+            for out in range(2)
+            if sel[out] is not None and sel_flit[out] is not None
+        }
         row = [str(cycle)]
         for src in range(2):
             vld, ready, idx = snap["sources"][src]
@@ -532,8 +648,8 @@ class Crossbar:
                     str(snap["voq_vld"][src][1]),
                 ]
         for out in range(2):
-            if out in tr:
-                src, flit = tr[out]
+            if out in present:
+                src, flit = present[out]
                 row += [
                     str(src),
                     "1",
@@ -591,6 +707,12 @@ def summarize(stats: Stats, cycles: int, mode: str, depths: list[int]) -> dict:
             stats.latency_sum / stats.latency_n if stats.latency_n else 0.0
         ),
         "p99_pkt_latency": percentile(latencies, 0.99),
+        "avg_admit_latency": (
+            stats.admit_latency_sum / stats.admit_latency_n
+            if stats.admit_latency_n
+            else 0.0
+        ),
+        "p99_admit_latency": percentile(stats.admit_latencies, 0.99),
         "avg_queue_latency": (
             stats.queue_latency_sum / stats.queue_latency_n
             if stats.queue_latency_n
@@ -613,14 +735,25 @@ def summarize(stats: Stats, cycles: int, mode: str, depths: list[int]) -> dict:
         "source_stall_rate": stats.source_stall_cycles / (cycles * 2),
         "output_idle_cycles": stats.output_idle_cycles,
         "output_idle_rate": stats.output_idle_cycles / (cycles * 2),
+        "output_backpressure_cycles": stats.output_backpressure_cycles,
+        "output_backpressure_rate": stats.output_backpressure_cycles / (cycles * 2),
         "hol_cycles": stats.hol_cycles,
         "hol_rate": stats.hol_cycles / cycles,
+        "hol_output_busy_cycles": stats.hol_output_busy_cycles,
+        "hol_output_busy_rate": stats.hol_output_busy_cycles / cycles,
+        "hol_arb_loss_cycles": stats.hol_arb_loss_cycles,
+        "hol_arb_loss_rate": stats.hol_arb_loss_cycles / cycles,
+        "arb_loss_cycles": stats.arb_loss_cycles,
+        "arb_loss_rate": stats.arb_loss_cycles / cycles,
+        "arb_loss_events": stats.arb_loss_events,
+        "out_flits": stats.out_flits,
+        "per_dst_0_tp": stats.out_flits[0] / cycles,
+        "per_dst_1_tp": stats.out_flits[1] / cycles,
+        "jain_out": jain(stats.out_flits),
         "jain": jain(stats.per_src_flits),
         "jain_dst": jain(stats.per_dst_flits),
         "per_src_0_tp": stats.per_src_flits[0] / cycles,
         "per_src_1_tp": stats.per_src_flits[1] / cycles,
-        "per_dst_0_tp": stats.per_dst_flits[0] / cycles,
-        "per_dst_1_tp": stats.per_dst_flits[1] / cycles,
     }
 
 
@@ -654,9 +787,12 @@ def run(
     csv_path: str | None,
     cycles_csv: str | None = None,
     per_queue_depth: int | None = None,
+    source_gap: int = 0,
+    rdy_period: int = 0,
+    rdy_high: int = 0,
 ) -> dict:
     by_src = load_trace(trace_path)
-    sources = [Source(src, by_src.get(src, [])) for src in range(2)]
+    sources = [Source(src, by_src.get(src, []), gap=source_gap) for src in range(2)]
     if per_queue_depth is not None:
         # Phase 2: capacity is per queue, orthogonal to the queue type.
         # FIFO: per-input shared FIFO; VOQ: per (input, output) queue.
@@ -669,7 +805,10 @@ def run(
         raise ValueError(mode)
     if depths[0] <= 0:
         raise ValueError("queue depth must be positive")
-    crossbar = Crossbar(mode, depths, sources, warmup)
+    crossbar = Crossbar(
+        mode, depths, sources, warmup,
+        rdy_period=rdy_period, rdy_high=rdy_high,
+    )
     crossbar.debug = cycles_csv is not None
     for _ in range(warmup):
         crossbar.step()
@@ -749,6 +888,12 @@ def main() -> int:
     parser.add_argument("--warmup", type=int, default=10_000)
     parser.add_argument("--csv", default=None)
     parser.add_argument("--cycles-csv", default=None)
+    parser.add_argument("--source-gap", type=int, choices=[0, 1], default=0,
+                        help="inter-packet source gap: 0=back-to-back, 1=legacy")
+    parser.add_argument("--rdy-period", type=int, default=0,
+                        help="output ready period; 0 = always ready")
+    parser.add_argument("--rdy-high", type=int, default=0,
+                        help="ready cycles per rdy-period (0..period)")
     parser.add_argument("--json", action="store_true")
     args = parser.parse_args()
     if args.cycles <= args.warmup:
@@ -770,6 +915,9 @@ def main() -> int:
         args.csv,
         args.cycles_csv,
         args.per_queue_depth,
+        args.source_gap,
+        args.rdy_period,
+        args.rdy_high,
     )
     if args.json:
         print(json.dumps(result, ensure_ascii=False, indent=2))

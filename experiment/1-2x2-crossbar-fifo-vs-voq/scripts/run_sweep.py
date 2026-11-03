@@ -58,6 +58,9 @@ def main() -> int:
     parser.add_argument("--outdir", default=os.path.join(ROOT, "out", "sweep"))
     parser.add_argument("--binary", default=os.path.join(ROOT, "build", "xbar_fifo_tb"))
     parser.add_argument("--cbb-rtl", default=DEFAULT_CBB_RTL)
+    parser.add_argument("--source-gap", type=int, choices=[0, 1], default=0)
+    parser.add_argument("--rdy-period", type=int, default=0)
+    parser.add_argument("--rdy-high", type=int, default=0)
     parser.add_argument("--json-out", default=None)
     parser.add_argument("--markdown-out", default=None)
     args = parser.parse_args()
@@ -101,6 +104,10 @@ def main() -> int:
                 args.cbb_rtl,
                 True,
                 args.dut,
+                None,
+                args.source_gap,
+                args.rdy_period,
+                args.rdy_high,
             )
             model_csv = os.path.join(
                 args.outdir, "cosim", base + ".model_packets.csv"
@@ -121,12 +128,20 @@ def main() -> int:
                             "delivered_flits",
                             "utilization",
                             "avg_pkt_latency",
+                            "avg_admit_latency",
+                            "p99_admit_latency",
                             "avg_queue_latency",
                             "avg_queue_occupancy",
                             "source_stall_rate",
                             "output_idle_rate",
                             "hol_rate",
+                            "hol_output_busy_rate",
+                            "hol_arb_loss_rate",
+                            "arb_loss_rate",
+                            "arb_loss_events",
+                            "out_flits",
                             "jain",
+                            "jain_out",
                             "trace_offered_flits",
                         )
                     },
@@ -155,12 +170,21 @@ def main() -> int:
             "utilization": mean([r["utilization"] for r in rows]),
             "avg_pkt_latency": mean([r["avg_pkt_latency"] for r in rows]),
             "p99_pkt_latency": mean([r["p99_pkt_latency"] for r in rows]),
+            "avg_admit_latency": mean([r["avg_admit_latency"] for r in rows]),
+            "p99_admit_latency": mean([r["p99_admit_latency"] for r in rows]),
             "avg_queue_latency": mean([r["avg_queue_latency"] for r in rows]),
             "avg_queue_occupancy": mean([r["avg_queue_occupancy"] for r in rows]),
             "source_stall_rate": mean([r["source_stall_rate"] for r in rows]),
             "output_idle_rate": mean([r["output_idle_rate"] for r in rows]),
             "hol_rate": mean([r["hol_rate"] for r in rows]),
+            "hol_output_busy_rate": mean(
+                [r["hol_output_busy_rate"] for r in rows]
+            ),
+            "hol_arb_loss_rate": mean([r["hol_arb_loss_rate"] for r in rows]),
+            "arb_loss_rate": mean([r["arb_loss_rate"] for r in rows]),
+            "arb_loss_events": mean([r["arb_loss_events"] for r in rows]),
             "jain": mean([r["jain"] for r in rows]),
+            "jain_out": mean([r["jain_out"] for r in rows]),
         }
 
     header = (
@@ -190,6 +214,9 @@ def main() -> int:
         "cycles": args.cycles,
         "warmup": args.warmup,
         "total_buffer": args.total_buffer,
+        "source_gap": args.source_gap,
+        "rdy_period": args.rdy_period,
+        "rdy_high": args.rdy_high,
         "summary": {str(k): v for k, v in summary.items()},
         "runs": runs,
     }

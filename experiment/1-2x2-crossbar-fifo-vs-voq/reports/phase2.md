@@ -1,4 +1,8 @@
 # Phase 2 — 容量作为正交变量：2x2 Crossbar FIFO vs VOQ
+> ⚠️ 2026-11-03 计量口径修正：本报告数字使用 `SOURCE_GAP=1` / 包完成吞吐口径，
+> 已被 `SOURCE_GAP=0` + 逐 flit 握手口径取代。修正后的 Phase 1/2/3 数字见
+> `docs/progress.md` §9；在报告重写前不要引用本页吞吐/HOL/延迟数字。
+
 
 > 日期：2026-11-03（矩阵跨 11/02–11/03）
 > 实验目录：`experiment/1-2x2-crossbar-fifo-vs-voq`

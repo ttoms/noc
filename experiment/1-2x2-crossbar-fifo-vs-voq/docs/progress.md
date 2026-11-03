@@ -247,3 +247,88 @@ Phase 3 已完成 XP per-crosspoint FIFO，并更新了本文件第 5/6 节中�
 - 完整报告见 [reports/phase3.md](../reports/phase3.md)，数据见
   [results/phase3/](../results/phase3/)。
 - OQ/CIOQ 仍未实现；下游 `out_rdy` 反压仍未注入。
+
+## 9. Measurement fixes（2026-11-03）
+
+针对第三轮评审提出的三项计量问题，模型和 TB 已同步修改；RTL 数据通路未动。
+
+- **Source gap**：新增 `SOURCE_GAP`（模型 `--source-gap`，TB `+SOURCE_GAP`），
+  默认 `0`：上一包最后一个 flit 握手的同一 edge 装载下一包，下一拍发首 flit，
+  背靠背无空拍。`SOURCE_GAP=1` 保留旧行为，仅用于复现旧结果。
+- **Throughput**：`delivered_flits` 改为逐拍 `out_vld && out_rdy` 握手计数，
+  `utilization = 握手数 / (2 × 统计窗口)`；包完成只计 `delivered_pkts` 和延迟，
+  不再把整包长度一次性计入窗口。
+- **HOL / 竞争拆分**：FIFO 的 HOL 拆成 `hol_output_busy`（head 的目标输出被
+  另一输入锁定）与 `hol_arb_loss`（head 同拍竞争失败）；另加与模式无关的
+  `arb_loss_events`，覆盖单 flit 包同拍竞争。旧 `hol_cycles` 只表示两者并集。
+- **验证**：FIFO/VOQ/XP 在 gap 0/1 下均逐包、逐 cycle exact；背靠背 4×8 flit
+  的 RTL start 在 gap 0 为 `1,9,17,25`，gap 1 为 `1,10,19,28`；单 flit 同拍竞争
+  用例 `arb_loss_events=1`。
+- **注意**：本文件第 1–5 节及 Phase 1/2/3 报告中的吞吐、HOL 数字来自旧的
+  gap 1 + 包完成口径，必须先按新口径重跑后才能引用。
+
+### 9.1 Phase 1 重跑（gap 0，4000 cycles / warmup 500 / 3 seeds）
+
+FIFO 与 VOQ 均 12/12 exact。逐 flit 握手口径下：
+
+- FIFO utilization：load 0.5 / 0.8 / 0.95 / 1.0 = 0.490 / 0.715 / 0.717 / 0.715
+- VOQ utilization：0.489 / 0.801 / 0.896 / 0.892
+- load 1.0 的 FIFO HOL rate = 0.557，其中 output_busy 0.476、arb_loss 0.081
+- 旧 VOQ 数字（约 0.813）主要是被 `SOURCE_GAP=1` 的源端空拍压住；gap 0 下
+  VOQ 才接近网络本身的输出瓶颈，FIFO 仍被 HOL 卡在约 0.715。
+
+这改变的是增益幅度（load 1.0 约 +17.7pp，而非旧口径的 +9.7pp），不改变
+“FIFO 受 HOL 限制、VOQ 消除 HOL”的方向。数据见
+[../results/phase1_gap0/](../results/phase1_gap0/)。
+
+### 9.2 Phase 3 重跑（gap 0，144 runs）
+
+144/144 exact；XP 与 VOQ 在 16 cells / 48 seed-pairs 上仍完全等价（0 差异）。
+
+等总 buffer 下 XP/VOQ 相对 FIFO 的 utilization 增益：
+
+- total 16 flits：load 0.8/0.95/1.0 = +4.56 / +6.25 / +5.33pp
+- total 32 flits：+8.22 / +13.13 / +12.65pp
+- total 64 flits：+8.54 / +17.91 / +17.72pp
+
+核心结论方向不变：FIFO 被 HOL 卡在约 0.715；VOQ/XP 随容量上升接近输出瓶颈。
+但新口径下增益明显大于旧报告（旧 total 64 仅 +3.99/+6.61pp），因为旧口径把
+VOQ 的吞吐压在了 source turnaround 上。数据见
+[../results/phase3_gap0/](../results/phase3_gap0/)。
+
+### 9.3 复审补强（2026-11-03）
+
+- **TB 数据完整性**：三个 TB 在输出握手拍逐 flit 校验 `out_data` 是否等于
+  `源端 base + 包内 flit 序号`；FIFO/VOQ/XP 仍 exact。
+- **admission latency**：模型增加 `avg_admit_latency` / `p99_admit_latency`
+  （`end - accepted`，只统计 warmup 后接受的包）。与 `end - arrival` 不同，
+  它不受源端外部到达队列积压影响。
+- **稳定性对照**（3 seeds）：4k/500 → 8k/1000
+  - FIFO admission：45.2/47.0/47.1 → 47.3/47.6/47.5，基本不变
+  - FIFO arrival：235/499/584 → 542/1145/1305，随运行长度增长
+  - VOQ admission：14.2/19.3/19.9 → 14.5/20.0/20.1，基本不变
+  - VOQ arrival：31/123/207 → 34/307/496，同样增长
+  结论：**latency 应引用 admission 口径**；arrival 口径只在 load 低于网络容量时有效。
+- **Phase 2 gap 0 完成**：1152/1152 exact；VOQ 163/192 strata 更好，平均
+  +6.22pp；等总 buffer 16/32/64 为 +3.46/+5.71/+7.35pp。数据见
+  [../results/phase2_gap0/](../results/phase2_gap0/)。
+- 仍未覆盖：输出 `out_rdy` 反压、SVA 实际仿真、1.2/1.5 过载、5+ seed/CI、
+  报告替换旧数字。
+
+### 9.4 输出反压、协议检查与过载（2026-11-03）
+
+- **输出反压**：TB 增加 `+RDY_PERIOD` / `+RDY_HIGH`，模型增加 `--rdy-period`
+  / `--rdy-high`，两边同一公式 `((cycle + 2*out) % period) < high`。默认
+  `period=0` 为全 ready，保持旧路径。
+- **exact**：FIFO/VOQ/XP 在 `period=5, high=3` 下逐包、逐 cycle exact；单 flit
+  在 grant 时被 stall 的定向用例（`period=8, high=2`）也 exact。
+- **反压收益检查**：3 seeds、3000 cycles、60% ready 下，FIFO utilization
+  0.430/0.433（load 0.8/1.0），VOQ 0.541/0.547；输出背压成为主瓶颈，符合预期。
+- **TB 协议检查**：新增 nested SOP、无 SOP 的 flit、无 SOP 的 EOP 检查；与逐
+  flit payload 校验一起，失败时 `$fatal`。
+- **gap 0 过载**：uniform1-8、3 seeds、4000 cycles，load 1.2/1.5：
+  - FIFO utilization 0.712 / 0.705，HOL 0.568 / 0.582
+  - VOQ utilization 0.905 / 0.900，HOL 0
+  吞吐进入平台，说明 VOQ 已接近输出瓶颈；latency 仍不能引用 arrival 口径。
+- 仍未覆盖：SVA 的实际 Verilator 仿真（当前只有 TB 运行时检查和 SVA 源文件）、
+  5+ seeds/CI、Phase 1–3 报告替换旧数字。

@@ -140,6 +140,9 @@ def run_one(
     check_cycles: bool,
     dut: str = "fifo",
     depth: int | None = None,
+    source_gap: int = 0,
+    rdy_period: int = 0,
+    rdy_high: int = 0,
 ) -> dict:
     if depth is None:
         # Backward-compatible total-buffer interpretation:
@@ -175,6 +178,12 @@ def run_one(
         str(cycles),
         "--warmup",
         str(warmup),
+        "--source-gap",
+        str(source_gap),
+        "--rdy-period",
+        str(rdy_period),
+        "--rdy-high",
+        str(rdy_high),
         "--csv",
         model_out,
         "--json",
@@ -194,6 +203,9 @@ def run_one(
         f"+TRACE={trace_csv}",
         f"+OUT={rtl_out}",
         f"+CYCLES={cycles}",
+        f"+SOURCE_GAP={source_gap}",
+        f"+RDY_PERIOD={rdy_period}",
+        f"+RDY_HIGH={rdy_high}",
     ]
     if check_cycles:
         vvp_cmd.append(f"+DBG={rtl_cycles}")
@@ -237,6 +249,9 @@ def main() -> int:
     parser.add_argument("--compile", action="store_true")
     parser.add_argument("--cbb-rtl", default=DEFAULT_CBB_RTL)
     parser.add_argument("--no-cycles", action="store_true")
+    parser.add_argument("--source-gap", type=int, choices=[0, 1], default=0)
+    parser.add_argument("--rdy-period", type=int, default=0)
+    parser.add_argument("--rdy-high", type=int, default=0)
     parser.add_argument("--json", action="store_true")
     args = parser.parse_args()
 
@@ -254,6 +269,9 @@ def main() -> int:
         not args.no_cycles,
         args.dut,
         args.depth,
+        args.source_gap,
+        args.rdy_period,
+        args.rdy_high,
     )
     if args.json:
         print(json.dumps(result, ensure_ascii=False, indent=2))

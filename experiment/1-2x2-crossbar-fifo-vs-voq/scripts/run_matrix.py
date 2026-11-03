@@ -86,10 +86,12 @@ def ensure_trace(workdir, load, length_mode, traffic, seed, cycles, args):
     return jsonl, csv_path
 
 
-def run_key(queue, capacity, load, length_mode, traffic, seed):
+def run_key(queue, capacity, load, length_mode, traffic, seed,
+            source_gap=0, rdy_period=0, rdy_high=0):
     return (
         f"{queue}_c{capacity}_l{load:g}_"
-        f"{length_mode}_{traffic}_s{seed}"
+        f"{length_mode}_{traffic}_s{seed}_g{source_gap}"
+        f"_r{rdy_period}_{rdy_high}"
     )
 
 
@@ -120,7 +122,10 @@ def save_record(workdir, key, record):
 
 def run_case(queue, capacity, load, length_mode, traffic, seed, args,
              binaries, workdir):
-    key = run_key(queue, capacity, load, length_mode, traffic, seed)
+    key = run_key(
+        queue, capacity, load, length_mode, traffic, seed,
+        args.source_gap, args.rdy_period, args.rdy_high,
+    )
     if not args.no_resume:
         cached = load_record(workdir, key, args.cycles, args.warmup)
         if cached is not None:
@@ -146,6 +151,9 @@ def run_case(queue, capacity, load, length_mode, traffic, seed, args,
         True,
         queue,
         capacity,
+        args.source_gap,
+        args.rdy_period,
+        args.rdy_high,
     )
     model_json = os.path.join(
         outdir, os.path.splitext(os.path.basename(jsonl))[0] + ".model.json"
@@ -162,6 +170,9 @@ def run_case(queue, capacity, load, length_mode, traffic, seed, args,
         "seed": seed,
         "cycles": args.cycles,
         "warmup": args.warmup,
+        "source_gap": args.source_gap,
+        "rdy_period": args.rdy_period,
+        "rdy_high": args.rdy_high,
         "exact": bool(result["match"]),
         "packet_errors": result["packet_errors"],
         "cycle_errors": result["cycle_errors"],
@@ -230,6 +241,9 @@ def main() -> int:
     parser.add_argument("--workdir", default=DEFAULT_WORKDIR)
     parser.add_argument("--outdir", default=DEFAULT_OUTDIR)
     parser.add_argument("--cbb-rtl", default=DEFAULT_CBB_RTL)
+    parser.add_argument("--source-gap", type=int, choices=[0, 1], default=0)
+    parser.add_argument("--rdy-period", type=int, default=0)
+    parser.add_argument("--rdy-high", type=int, default=0)
     parser.add_argument("--no-resume", action="store_true")
     parser.add_argument("--max-runs", type=int, default=0,
                         help="stop after N new runs (smoke testing)")
@@ -254,6 +268,9 @@ def main() -> int:
         "seeds": args.seed_list,
         "cycles": args.cycles,
         "warmup": args.warmup,
+        "source_gap": args.source_gap,
+        "rdy_period": args.rdy_period,
+        "rdy_high": args.rdy_high,
         "hotspot_dst": args.hotspot_dst,
         "hotspot_prob": args.hotspot_prob,
         "burst_on_mean": args.burst_on_mean,
@@ -354,6 +371,9 @@ def main() -> int:
         key = run_key(
             record["queue"], record["capacity"], record["load"],
             record["length_mode"], record["traffic"], record["seed"],
+            record.get("source_gap", 0),
+            record.get("rdy_period", 0),
+            record.get("rdy_high", 0),
         )
         unique[key] = record
     runs = list(unique.values())

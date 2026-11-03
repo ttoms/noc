@@ -65,6 +65,9 @@ def main() -> int:
     parser.add_argument("--workdir", default=DEFAULT_WORKDIR)
     parser.add_argument("--outdir", default=DEFAULT_OUTDIR)
     parser.add_argument("--cbb-rtl", default=os.path.join(ROOT, "vendor", "cbb", "rtl"))
+    parser.add_argument("--source-gap", type=int, choices=[0, 1], default=0)
+    parser.add_argument("--rdy-period", type=int, default=0)
+    parser.add_argument("--rdy-high", type=int, default=0)
     parser.add_argument("--no-resume", action="store_true")
     parser.add_argument("--max-runs", type=int, default=0,
                         help="stop after N new runs (smoke testing)")
@@ -91,6 +94,9 @@ def main() -> int:
         "seeds": args.seed_list,
         "cycles": args.cycles,
         "warmup": args.warmup,
+        "source_gap": args.source_gap,
+        "rdy_period": args.rdy_period,
+        "rdy_high": args.rdy_high,
         "hotspot_dst": args.hotspot_dst,
         "hotspot_prob": args.hotspot_prob,
         "burst_on_mean": args.burst_on_mean,
@@ -145,6 +151,9 @@ def main() -> int:
         key = run_key(
             record["queue"], record["capacity"], record["load"],
             record["length_mode"], record["traffic"], record["seed"],
+            record.get("source_gap", 0),
+            record.get("rdy_period", 0),
+            record.get("rdy_high", 0),
         )
         unique[key] = record
     runs = sorted(

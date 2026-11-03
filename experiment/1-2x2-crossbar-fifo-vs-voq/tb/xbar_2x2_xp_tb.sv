@@ -51,6 +51,9 @@ module xbar_2x2_xp_tb #(
 
     integer cycle;
     integer sim_cycles;
+    integer source_gap;
+    integer rdy_period;
+    integer rdy_high;
     integer trace_fd;
     integer out_fd;
     integer dbg_fd;
@@ -94,6 +97,19 @@ module xbar_2x2_xp_tb #(
     integer     out_len    [0:1];
     integer     out_src    [0:1];
     integer     o;
+    integer     data_errors;
+    integer     protocol_errors;
+
+    // Downstream ready pattern: period 0 means always ready.  Both the model
+    // and the TB use ((cycle + 2*out) % period) < high.
+    always_comb begin
+        if (rdy_period <= 0) begin
+            out_rdy = 2'b11;
+        end else begin
+            out_rdy[0] = ((cycle + 0) % rdy_period) < rdy_high;
+            out_rdy[1] = ((cycle + 2) % rdy_period) < rdy_high;
+        end
+    end
 
     initial clk = 1'b0;
     always #5 clk = ~clk;
@@ -124,10 +140,21 @@ module xbar_2x2_xp_tb #(
         n1 = 0;
         p0 = 0;
         p1 = 0;
+        data_errors = 0;
+        protocol_errors = 0;
         cycle = 0;
         done = 1'b0;
         dbg_en = 1'b0;
         sim_cycles = MAX_CYCLES;
+        source_gap = 0;
+        if (!$value$plusargs("SOURCE_GAP=%d", source_gap))
+            source_gap = 0;
+        rdy_period = 0;
+        rdy_high = 0;
+        if (!$value$plusargs("RDY_PERIOD=%d", rdy_period))
+            rdy_period = 0;
+        if (!$value$plusargs("RDY_HIGH=%d", rdy_high))
+            rdy_high = 0;
 
         if (!$value$plusargs("TRACE=%s", trace_path)) begin
             $display("ERROR: +TRACE=<csv> required");
@@ -197,7 +224,6 @@ module xbar_2x2_xp_tb #(
         $fclose(trace_fd);
 
         rst_n = 1'b0;
-        out_rdy = 2'b11;
         repeat (5) @(posedge clk);
         rst_n = 1'b1;
         repeat (sim_cycles) @(posedge clk);
@@ -205,7 +231,11 @@ module xbar_2x2_xp_tb #(
         $fclose(out_fd);
         if (dbg_en)
             $fclose(dbg_fd);
-        $display("DONE cycle=%0d n0=%0d n1=%0d", cycle, n0, n1);
+        $display("DONE cycle=%0d n0=%0d n1=%0d data_errors=%0d protocol_errors=%0d",
+                 cycle, n0, n1, data_errors, protocol_errors);
+        if (data_errors != 0 || protocol_errors != 0)
+            $fatal(1, "data errors=%0d protocol errors=%0d",
+                   data_errors, protocol_errors);
         $finish;
     end
 
@@ -231,10 +261,19 @@ module xbar_2x2_xp_tb #(
                 cur_dst[0]   <= src0_dst[p0];
                 p0 <= p0 + 1;
             end else if (cur_valid[0] && in_rdy[0]) begin
-                if (cur_flit[0] == cur_len[0] - 1)
-                    cur_valid[0] <= 1'b0;
-                else
+                if (cur_flit[0] == cur_len[0] - 1) begin
+                    if (source_gap == 0 && p0 < n0 && src0_arr[p0] <= cycle) begin
+                        cur_valid[0] <= 1'b1;
+                        cur_len[0]   <= src0_len[p0];
+                        cur_flit[0]  <= 0;
+                        cur_dst[0]   <= src0_dst[p0];
+                        p0 <= p0 + 1;
+                    end else begin
+                        cur_valid[0] <= 1'b0;
+                    end
+                end else begin
                     cur_flit[0] <= cur_flit[0] + 1;
+                end
             end
 
             if (!cur_valid[1] && p1 < n1 && src1_arr[p1] <= cycle) begin
@@ -244,10 +283,19 @@ module xbar_2x2_xp_tb #(
                 cur_dst[1]   <= src1_dst[p1];
                 p1 <= p1 + 1;
             end else if (cur_valid[1] && in_rdy[1]) begin
-                if (cur_flit[1] == cur_len[1] - 1)
-                    cur_valid[1] <= 1'b0;
-                else
+                if (cur_flit[1] == cur_len[1] - 1) begin
+                    if (source_gap == 0 && p1 < n1 && src1_arr[p1] <= cycle) begin
+                        cur_valid[1] <= 1'b1;
+                        cur_len[1]   <= src1_len[p1];
+                        cur_flit[1]  <= 0;
+                        cur_dst[1]   <= src1_dst[p1];
+                        p1 <= p1 + 1;
+                    end else begin
+                        cur_valid[1] <= 1'b0;
+                    end
+                end else begin
                     cur_flit[1] <= cur_flit[1] + 1;
+                end
             end
         end
     end
@@ -257,6 +305,18 @@ module xbar_2x2_xp_tb #(
         if (rst_n && !done) begin
             for (o = 0; o < 2; o++) begin
                 if (out_vld[o] && out_rdy[o]) begin
+                    if (out_sop[o] && out_active[o]) begin
+                        $display("ERROR: nested SOP port=%0d cycle=%0d", o, cycle);
+                        protocol_errors = protocol_errors + 1;
+                    end
+                    if (!out_sop[o] && !out_active[o]) begin
+                        $display("ERROR: flit without SOP port=%0d cycle=%0d", o, cycle);
+                        protocol_errors = protocol_errors + 1;
+                    end
+                    if (out_eop[o] && !out_active[o] && !out_sop[o]) begin
+                        $display("ERROR: EOP without SOP port=%0d cycle=%0d", o, cycle);
+                        protocol_errors = protocol_errors + 1;
+                    end
                     if (out_sop[o]) begin
                         out_active[o] = 1'b1;
                         out_start[o]  = cycle - 1;
@@ -264,6 +324,15 @@ module xbar_2x2_xp_tb #(
                         out_src[o]    = out_src_dbg[o];
                     end
                     if (out_active[o]) begin
+                        if (out_data[o] !==
+                            ((out_src[o] == 0) ? 32'h0000_0000 : 32'h1000_0000)
+                            + out_len[o]) begin
+                            $display("ERROR: data mismatch port=%0d cycle=%0d expected=%08x got=%08x",
+                                     o, cycle,
+                                     ((out_src[o] == 0) ? 32'h0000_0000 : 32'h1000_0000)
+                                     + out_len[o], out_data[o]);
+                            data_errors = data_errors + 1;
+                        end
                         out_len[o] = out_len[o] + 1;
                         if (out_eop[o]) begin
                             $fwrite(out_fd, "%0d,%0d,%0d,%0d,%0d\n",

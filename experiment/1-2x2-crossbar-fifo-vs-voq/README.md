@@ -2,6 +2,10 @@
 
 一个 cycle-accurate 的 2x2 packet crossbar 实验：比较共享输入 FIFO 与 per-destination VOQ 在 no-drop / backpressure 下的吞吐、延迟和 HOL blocking。
 
+> ⚠️ 2026-11-03 计量口径已修正：`SOURCE_GAP=0`（背靠背源端）+ 逐 flit 握手吞吐 +
+> HOL/竞争拆分。下方 Phase 1/2/3 的旧数字仍使用 `SOURCE_GAP=1` 和包完成口径，
+> 不能直接引用；重跑结果见 `docs/progress.md` §9。
+
 > Phase 1：模型与 RTL 已逐包、逐 cycle 对齐，结论见 [REPORT.md](REPORT.md)。
 > Phase 2：把 per-queue capacity 作为正交变量做全因子矩阵，结论见
 > [reports/phase2.md](reports/phase2.md)。Phase 1 产物保持不变。
