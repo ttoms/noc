@@ -7,3 +7,5 @@
 - 口径：`SOURCE_GAP=0`、逐 flit 握手吞吐
 - 1152/1152 exact
 - 旧 `results/phase2/` 为 gap 1 / 包完成口径
+
+- `core_5seed.json`：uniform1-8 + uniform 的 5-seed core（160 runs）

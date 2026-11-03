@@ -1,0 +1,10 @@
+// Runtime assertions for the vendored bin2ohot (Icarus 11 compatible).
+initial begin
+    if (N < 1)
+        $fatal(1, "[%m] N must be >= 1, got %0d", N);
+end
+
+always_comb begin
+    if (|ohot)
+        assert ($onehot(ohot));
+end

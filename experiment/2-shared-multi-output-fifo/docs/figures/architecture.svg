@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="560" viewBox="0 0 1100 560">
+<style>
+  .box{fill:#f7f9fc;stroke:#2f4f6f;stroke-width:2;rx:8}
+  .ctrl{fill:#eef4ea;stroke:#4f6f3f;stroke-width:2;rx:8}
+  .mem{fill:#fdf3e7;stroke:#8f5f2f;stroke-width:2;rx:8}
+  .t{font-family:Arial,sans-serif;font-size:16px;fill:#1f2933}
+  .s{font-family:Arial,sans-serif;font-size:13px;fill:#44515e}
+  .a{stroke:#2f4f6f;stroke-width:2;fill:none;marker-end:url(#arrow)}
+  .d{stroke:#8f5f2f;stroke-width:2;fill:none;marker-end:url(#arrow)}
+</style>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#2f4f6f"/></marker></defs>
+<text x="30" y="34" class="t" font-size="22" font-weight="bold">Shared-buffer Multi-output FIFO (1 write / N read)</text>
+<rect x="30" y="90" width="170" height="90" class="box"/><text x="55" y="125" class="t">Ingress</text><text x="55" y="150" class="s">vld/rdy, sop/eop</text><text x="55" y="168" class="s">vc, dst, data</text>
+<rect x="250" y="60" width="170" height="70" class="ctrl"/><text x="270" y="90" class="t">idpool</text><text x="270" y="112" class="s">alloc / free cell ID</text>
+<rect x="250" y="155" width="170" height="70" class="ctrl"/><text x="270" y="185" class="t">link_list</text><text x="270" y="207" class="s">per-VC head/tail/next</text>
+<rect x="480" y="60" width="230" height="170" class="mem"/><text x="505" y="92" class="t">shared_buffer</text><text x="505" y="118" class="s">CELL_NUM cells</text><text x="505" y="140" class="s">1 write port</text><text x="505" y="162" class="s">N read ports</text><text x="505" y="190" class="s">payload + sop/eop/vc/dst</text>
+<rect x="770" y="55" width="140" height="60" class="box"/><text x="790" y="82" class="t">arbiter[0]</text><text x="790" y="102" class="s">VC select</text>
+<rect x="770" y="130" width="140" height="60" class="box"/><text x="790" y="157" class="t">arbiter[1]</text><text x="790" y="177" class="s">VC select</text>
+<text x="800" y="220" class="s">...</text>
+<rect x="770" y="240" width="140" height="60" class="box"/><text x="790" y="267" class="t">arbiter[N-1]</text><text x="790" y="287" class="s">VC select</text>
+<rect x="960" y="55" width="110" height="60" class="box"/><text x="985" y="82" class="t">out 0</text><text x="985" y="102" class="s">vld/rdy</text>
+<rect x="960" y="130" width="110" height="60" class="box"/><text x="985" y="157" class="t">out 1</text><text x="985" y="177" class="s">vld/rdy</text>
+<rect x="960" y="240" width="110" height="60" class="box"/><text x="985" y="267" class="t">out N-1</text><text x="985" y="287" class="s">vld/rdy</text>
+<path d="M200 135 L250 100" class="a"/><path d="M200 135 L250 190" class="a"/>
+<path d="M335 130 L480 130" class="a"/><path d="M420 190 L480 190" class="a"/>
+<path d="M595 85 L770 85" class="a"/><path d="M595 145 L770 160" class="a"/><path d="M595 205 L770 260" class="a"/>
+<path d="M910 85 L960 85" class="a"/><path d="M910 160 L960 160" class="a"/><path d="M910 270 L960 270" class="a"/>
+<text x="30" y="330" class="s">Write path: alloc cell -&gt; write shared_buffer -&gt; push VC link_list.</text>
+<text x="30" y="355" class="s">Read path: per-output arbiter picks VC with head.dst==o -&gt; read head cell -&gt; advance list; EOP frees cell.</text>
+<text x="30" y="380" class="s">v1: packet-locked cut-through, no VC quota. Quota later: per-VC cell count only, checked at ingress.</text>
+<text x="30" y="405" class="s">Backpressure: idpool empty / VC push not ready / quota exceeded -&gt; in_rdy=0; no drop.</text>
+</svg>

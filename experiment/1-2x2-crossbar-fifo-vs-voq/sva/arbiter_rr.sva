@@ -1,0 +1,14 @@
+// Runtime assertions for the vendored arbiter_rr (Icarus 11 compatible).
+initial begin
+    if (N < 1)
+        $fatal(1, "[%m] N must be >= 1, got %0d", N);
+end
+
+always @(posedge clk) begin
+    if (rst_n) begin
+        assert (!gnt_vld || $onehot(gnt));
+        assert (gnt_vld == (|req));
+        assert ((gnt & ~req) == '0);
+        assert ($onehot(ptr));
+    end
+end

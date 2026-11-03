@@ -10,7 +10,11 @@
 > Phase 2：把 per-queue capacity 作为正交变量做全因子矩阵，结论见
 > [reports/phase2.md](reports/phase2.md)。Phase 1 产物保持不变。
 > Phase 3：实现 per-crosspoint FIFO（XP），并与 FIFO/VOQ 做 core matrix 精确对比，
-> 结论见 [reports/phase3.md](reports/phase3.md)。Phase 1/2 产物保持不变。
+> 结论见 [reports/phase3.md](reports/phase3.md)。
+> 2026-11-03 修正口径（`SOURCE_GAP=0`、逐 flit 握手、HOL 拆分、输出反压）：
+> Phase 1 见 [reports/phase1_gap0.md](reports/phase1_gap0.md)，Phase 2/3 数据见
+> [reports/phase2_gap0.md](reports/phase2_gap0.md) 和
+> [reports/phase3_gap0.md](reports/phase3_gap0.md)。
 
 ![IQ-FIFO architecture](docs/figures/fifo-architecture.png)
 

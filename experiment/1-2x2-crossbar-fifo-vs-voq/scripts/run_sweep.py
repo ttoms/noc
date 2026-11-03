@@ -168,6 +168,15 @@ def main() -> int:
             "delivered_flits": mean([r["delivered_flits"] for r in rows]),
             "offered_flits": mean([r["trace_offered_flits"] for r in rows]),
             "utilization": mean([r["utilization"] for r in rows]),
+            "utilization_std": (
+                statistics.stdev([r["utilization"] for r in rows])
+                if len(rows) > 1 else 0.0
+            ),
+            "utilization_ci95": (
+                1.96 * statistics.stdev([r["utilization"] for r in rows])
+                / (len(rows) ** 0.5)
+                if len(rows) > 1 else 0.0
+            ),
             "avg_pkt_latency": mean([r["avg_pkt_latency"] for r in rows]),
             "p99_pkt_latency": mean([r["p99_pkt_latency"] for r in rows]),
             "avg_admit_latency": mean([r["avg_admit_latency"] for r in rows]),

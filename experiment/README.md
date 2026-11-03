@@ -10,3 +10,7 @@
     traffic 全因子矩阵（[reports/phase2.md](1-2x2-crossbar-fifo-vs-voq/reports/phase2.md)）
 
 每个实验目录自包含：README、REPORT、RTL、TB、模型、复现脚本、结果汇总。
+
+- [2-shared-multi-output-fifo](2-shared-multi-output-fifo/README.md)
+  - 1 write / N read 共享缓冲 FIFO；架构阶段（C0/E0），暂无 RTL
+  - 组件：`idpool`、`link_list`、`shared_buffer`、`mo_fifo_top`

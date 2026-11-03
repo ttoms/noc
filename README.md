@@ -13,6 +13,14 @@ NOC / on-chip interconnect modules and experiments.
   - Phase 3: per-crosspoint FIFO (XP), exact 144-run core matrix against
     FIFO/VOQ, plus equal-total-buffer analysis
     ([report](experiment/1-2x2-crossbar-fifo-vs-voq/reports/phase3.md))
+  - 2026-11-03 corrected measurement: `SOURCE_GAP=0`, flit-handshake throughput,
+    split HOL, output backpressure, 5-seed reruns
+    ([Phase 1](experiment/1-2x2-crossbar-fifo-vs-voq/reports/phase1_gap0.md),
+    [Phase 2](experiment/1-2x2-crossbar-fifo-vs-voq/reports/phase2_gap0.md),
+    [Phase 3](experiment/1-2x2-crossbar-fifo-vs-voq/reports/phase3_gap0.md))
+- [2-shared-multi-output-fifo](experiment/2-shared-multi-output-fifo/README.md)
+  - 1-write / N-read shared-buffer FIFO for NoC; architecture (C0/E0), no RTL yet
+  - CBB dependencies: `idpool`, `link_list`, `shared_buffer`, `mo_fifo_top`
 
 ## Layout
 

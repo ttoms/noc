@@ -1,0 +1,24 @@
+// Runtime assertions for the vendored fifo_sync, compiled under SVA_ON.
+// Icarus 11 does not support concurrent assert property, so this mirrors the
+// CBB checks as immediate assertions.
+initial begin
+    if (!(DATA_W > 0 && DATA_W <= 1024))
+        $fatal(1, "[%m] DATA_W out of range, got %0d", DATA_W);
+    if (!(DEPTH >= 2 && (DEPTH & (DEPTH - 1)) == 0))
+        $fatal(1, "[%m] DEPTH must be a power of two >= 2, got %0d", DEPTH);
+end
+
+logic sva_fifo_stall;
+logic [DATA_W-1:0] sva_fifo_data;
+
+always @(posedge clk) begin
+    if (!rst_n) begin
+        sva_fifo_stall <= 1'b0;
+        sva_fifo_data  <= '0;
+    end else begin
+        if (sva_fifo_stall && rd_vld)
+            assert (rd_data == sva_fifo_data);
+        sva_fifo_stall <= rd_vld && !rd_rdy;
+        sva_fifo_data  <= rd_data;
+    end
+end

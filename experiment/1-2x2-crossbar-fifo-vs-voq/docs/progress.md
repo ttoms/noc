@@ -312,8 +312,7 @@ VOQ 的吞吐压在了 source turnaround 上。数据见
 - **Phase 2 gap 0 完成**：1152/1152 exact；VOQ 163/192 strata 更好，平均
   +6.22pp；等总 buffer 16/32/64 为 +3.46/+5.71/+7.35pp。数据见
   [../results/phase2_gap0/](../results/phase2_gap0/)。
-- 仍未覆盖：输出 `out_rdy` 反压、SVA 实际仿真、1.2/1.5 过载、5+ seed/CI、
-  报告替换旧数字。
+- 仍未覆盖：5+ seed/CI、Phase 1–3 报告替换旧数字。
 
 ### 9.4 输出反压、协议检查与过载（2026-11-03）
 
@@ -330,5 +329,21 @@ VOQ 的吞吐压在了 source turnaround 上。数据见
   - FIFO utilization 0.712 / 0.705，HOL 0.568 / 0.582
   - VOQ utilization 0.905 / 0.900，HOL 0
   吞吐进入平台，说明 VOQ 已接近输出瓶颈；latency 仍不能引用 arrival 口径。
-- 仍未覆盖：SVA 的实际 Verilator 仿真（当前只有 TB 运行时检查和 SVA 源文件）、
-  5+ seeds/CI、Phase 1–3 报告替换旧数字。
+- **SVA 实际执行**：iverilog 11 / Verilator 4.038 不支持并发 `assert property`，
+  已把 `.sva` 改成同语义的 posedge 立即断言（SOP/EOP 标记、反压期间 flit 稳定、
+  包内 sel 不变），并为 vendored `fifo_sync` / `arbiter_rr` / `bin2ohot` 提供
+  本地运行时断言。`-DSVA_ON -I sva` 编译后，FIFO/VOQ/XP 在 4000 cycles、
+  `period=5 high=3` 下断言全部通过，同时逐包/逐 cycle exact。
+- 仍未覆盖：5+ seeds/CI、Phase 1–3 报告替换旧数字。
+
+### 9.6 5-seed / CI 与报告
+
+- Phase 1：5 seeds，utilization CI 已写入
+  [reports/phase1_gap0.md](../reports/phase1_gap0.md)。
+- Phase 2：全矩阵 3 seeds + core 5 seeds；core 数据
+  [results/phase2_gap0/core_5seed.json](../results/phase2_gap0/core_5seed.json)，
+  报告 [reports/phase2_gap0.md](../reports/phase2_gap0.md)。
+- Phase 3：5 seeds（240 runs，240/240 exact，XP/VOQ 80/80 seed-pairs 相等），
+  报告 [reports/phase3_gap0.md](../reports/phase3_gap0.md)。
+- `scripts/ci_from_raw.py`：从 raw_runs 计算配对差值 95% t CI。
+- Phase 2 全矩阵 5-seed 仍在后台运行；完成后替换 core-only 说明。

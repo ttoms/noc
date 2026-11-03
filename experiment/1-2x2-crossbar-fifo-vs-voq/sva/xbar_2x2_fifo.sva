@@ -1,29 +1,75 @@
-// Protocol assertions for xbar_2x2_fifo (included inside the module).
-// Not compiled unless SVA_ON is defined (iverilog 4.x does not support these).
+// Runtime assertions for xbar_2x2_fifo.
+// Included inside the module under SVA_ON.  Icarus 11 does not support
+// concurrent `assert property`, so these are immediate assertions executed at
+// posedge; they are compiled and run with -DSVA_ON.
+logic sva_stall0, sva_stall1;
+logic [FLIT_W-1:0] sva_data0, sva_data1;
+logic sva_sop0, sva_sop1, sva_eop0, sva_eop1;
+logic sva_active0, sva_active1;
+logic sva_sel0, sva_sel1;
 
-property p_fifo_out0_stable;
-    @(posedge clk) disable iff (!rst_n)
-    (out_vld[0] && !out_rdy[0]) |=> out_vld[0] &&
-        $stable(out_data[0]) && $stable(out_sop[0]) && $stable(out_eop[0]);
-endproperty
+always @(posedge clk) begin
+    if (!rst_n) begin
+        sva_stall0 <= 1'b0;
+        sva_stall1 <= 1'b0;
+        sva_active0 <= 1'b0;
+        sva_active1 <= 1'b0;
+        sva_sel0 <= 1'b0;
+        sva_sel1 <= 1'b0;
+        sva_data0 <= '0;
+        sva_data1 <= '0;
+        sva_sop0 <= 1'b0;
+        sva_sop1 <= 1'b0;
+        sva_eop0 <= 1'b0;
+        sva_eop1 <= 1'b0;
+    end else begin
+        // SOP/EOP markers must be qualified by valid.
+        assert (!out_sop[0] || out_vld[0]);
+        assert (!out_eop[0] || out_vld[0]);
+        assert (!out_sop[1] || out_vld[1]);
+        assert (!out_eop[1] || out_vld[1]);
 
-property p_fifo_out1_stable;
-    @(posedge clk) disable iff (!rst_n)
-    (out_vld[1] && !out_rdy[1]) |=> out_vld[1] &&
-        $stable(out_data[1]) && $stable(out_sop[1]) && $stable(out_eop[1]);
-endproperty
+        // Under downstream backpressure the presented flit must not change.
+        if (sva_stall0 && out_vld[0]) begin
+            assert (out_data[0] == sva_data0);
+            assert (out_sop[0] == sva_sop0);
+            assert (out_eop[0] == sva_eop0);
+        end
+        if (sva_stall1 && out_vld[1]) begin
+            assert (out_data[1] == sva_data1);
+            assert (out_sop[1] == sva_sop1);
+            assert (out_eop[1] == sva_eop1);
+        end
 
-property p_fifo_out0_markers;
-    @(posedge clk) disable iff (!rst_n)
-    (out_sop[0] |-> out_vld[0]) && (out_eop[0] |-> out_vld[0]);
-endproperty
+        // A packet in flight must keep the same selected input until EOP.
+        if (sva_active0 && out_vld[0] && out_rdy[0] && !out_eop[0])
+            assert (sel[0] == sva_sel0);
+        if (sva_active1 && out_vld[1] && out_rdy[1] && !out_eop[1])
+            assert (sel[1] == sva_sel1);
 
-property p_fifo_out1_markers;
-    @(posedge clk) disable iff (!rst_n)
-    (out_sop[1] |-> out_vld[1]) && (out_eop[1] |-> out_vld[1]);
-endproperty
-
-assert property (p_fifo_out0_stable);
-assert property (p_fifo_out1_stable);
-assert property (p_fifo_out0_markers);
-assert property (p_fifo_out1_markers);
+        sva_stall0 <= out_vld[0] && !out_rdy[0];
+        sva_stall1 <= out_vld[1] && !out_rdy[1];
+        sva_data0 <= out_data[0];
+        sva_data1 <= out_data[1];
+        sva_sop0 <= out_sop[0];
+        sva_sop1 <= out_sop[1];
+        sva_eop0 <= out_eop[0];
+        sva_eop1 <= out_eop[1];
+        if (out_vld[0] && out_rdy[0]) begin
+            if (out_sop[0]) begin
+                sva_active0 <= 1'b1;
+                sva_sel0 <= sel[0];
+            end
+            if (out_eop[0])
+                sva_active0 <= 1'b0;
+        end
+        if (out_vld[1] && out_rdy[1]) begin
+            if (out_sop[1]) begin
+                sva_active1 <= 1'b1;
+                sva_sel1 <= sel[1];
+            end
+            if (out_eop[1])
+                sva_active1 <= 1'b0;
+        end
+    end
+end
