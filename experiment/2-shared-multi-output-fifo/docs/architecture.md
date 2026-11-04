@@ -103,9 +103,23 @@ payload 都送到 `strmux` 的 N 路输入；`strmux` 适合外部链路层多�
 - 性能：吞吐/延迟 vs `CELL_NUM`、`VC_NUM`、N、包长、输出 ready duty；
   quota 开启后单 VC 限流对总吞吐的影响。
 
-## 8. 未决问题
+## 8. E1 模型反馈（2026-11-04）
 
-- VC 是否允许一个 VC 内多目的地（当前按 `dst` 逐包判断，会产生 VC 内 HOL）。
+E1 cycle model 已量化本架构的关键权衡，详见
+[`reports/e1_shared_fifo.md`](../reports/e1_shared_fifo.md)：
+
+- VC 与目的地绑定（`vc=dst`）时，共享池 + 双读口在 2x2、高负载、小池下
+  相对实验 1 VOQ 提升约 2.8–6.0pp 利用率；池越大收益越小。
+- 允许一个 VC 混载多个目的地时，VC 内 HOL 会把收益吃掉：高负载下相对 VOQ
+  低 3.3–9.9pp，池越大越严重；增加 VC 数只能缓解，不能消除。
+- per-VC quota 只限制单个 VC 占池，不解决 VC 内 HOL。
+- 因此 v1 若追求吞吐/尾延迟，建议 **VC 绑定目的地** 或直接 per-destination
+  队列；多目的地 VC 应作为显式取舍，而不是默认配置。
+
+## 9. 未决问题
+
+- VC 是否允许一个 VC 内多目的地（当前按 `dst` 逐包判断，会产生 VC 内 HOL；
+  E1 数据见上，建议 v1 先按 `vc=dst` 实现）。
 - head metadata 放 `link_list` 还是 `shared_buffer`；前者读口小，后者省一次查表。
 - 非 EOP cell 是否立即释放，还是包结束统一释放；前者省容量，后者简化链表。
 - 读口组合读的 N 选一 mux 时序；大 N 时是否需要分级/寄存。

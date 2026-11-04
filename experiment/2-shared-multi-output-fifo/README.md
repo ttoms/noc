@@ -1,6 +1,6 @@
 # 2 — Shared-buffer Multi-output FIFO
 
-> 状态：**架构阶段（C0/E0），暂无 RTL**
+> 状态：**架构（C0/E0）+ E1 cycle model 完成；暂无 RTL**
 > 目标：为 NoC 的 1-write / N-read 共享缓冲 FIFO 定义可实现的 CBB 组合与
 > 集成契约；第一版不做 VC quota，后续 quota 只按 VC 计，不按 output 计。
 
@@ -24,6 +24,8 @@
 ![Architecture](docs/figures/architecture.png)
 
 - [架构与接口](docs/architecture.md)
+- [E1 计划与口径](docs/e1-plan.md)
+- [E1 模型与 2x2 对比报告](reports/e1_shared_fifo.md)
 - CBB 依赖与固定版本：[vendor/cbb/README.md](vendor/cbb/README.md)
 
 ## 非目标（v1）

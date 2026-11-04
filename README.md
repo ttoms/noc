@@ -19,8 +19,11 @@ NOC / on-chip interconnect modules and experiments.
     [Phase 2](experiment/1-2x2-crossbar-fifo-vs-voq/reports/phase2_gap0.md),
     [Phase 3](experiment/1-2x2-crossbar-fifo-vs-voq/reports/phase3_gap0.md))
 - [2-shared-multi-output-fifo](experiment/2-shared-multi-output-fifo/README.md)
-  - 1-write / N-read shared-buffer FIFO for NoC; architecture (C0/E0), no RTL yet
+  - 1-write / N-read shared-buffer FIFO for NoC; architecture (C0/E0) + E1
+    cycle model, no RTL yet
   - CBB dependencies: `idpool`, `link_list`, `shared_buffer`, `mo_fifo_top`
+  - E1 2x2 comparison (5 seeds, paired CIs):
+    ([report](experiment/2-shared-multi-output-fifo/reports/e1_shared_fifo.md))
 
 ## Layout
 

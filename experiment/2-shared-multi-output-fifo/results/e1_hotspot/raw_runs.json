@@ -1,0 +1,1396 @@
+{
+  "meta": {
+    "seeds": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "cell_nums": [
+      32
+    ],
+    "loads": [
+      0.95
+    ],
+    "vc_modes": [
+      "per_dst",
+      "multi2"
+    ],
+    "cycles": 4000,
+    "warmup": 500,
+    "length_mode": "uniform1-8",
+    "traffic": "hotspot",
+    "rdy_period": 0,
+    "rdy_high": 0,
+    "same_cycle_free": false,
+    "read_ports": "shared=2 per input, voq=1 per input"
+  },
+  "runs": [
+    {
+      "arch": "voq",
+      "vc_mode": "none",
+      "vc_num": 0,
+      "queue_depth": 16,
+      "load": 0.95,
+      "seed": 1,
+      "capacity": 32,
+      "length_mode": "uniform1-8",
+      "traffic": "hotspot",
+      "cycles": 4000,
+      "warmup": 500,
+      "rdy_period": 0,
+      "rdy_high": 0,
+      "metrics": {
+        "mode": "voq",
+        "depth": [
+          16,
+          16
+        ],
+        "delivered_pkts": 994,
+        "delivered_flits": 4374,
+        "delivered_tp": 1.2497142857142858,
+        "utilization": 0.6248571428571429,
+        "accepted_pkts": 998,
+        "accepted_flits": 4374,
+        "accepted_tp": 1.2497142857142858,
+        "avg_pkt_latency": 714.4949698189134,
+        "p99_pkt_latency": 1407.0,
+        "avg_admit_latency": 28.332995951417004,
+        "p99_admit_latency": 54.0,
+        "avg_queue_latency": 24.993963782696177,
+        "avg_queue_occupancy": 15.455428571428572,
+        "avg_total_queue_occupancy": 30.910857142857143,
+        "max_total_queue_occupancy": 33,
+        "max_input_queue_occupancy": 17,
+        "max_single_voq_occupancy": 16,
+        "max_single_dst_queue_occupancy": 16,
+        "source_stall_rate": 0.37514285714285717,
+        "output_idle_cycles": 2626,
+        "output_idle_rate": 0.37514285714285717,
+        "output_backpressure_cycles": 0,
+        "output_backpressure_rate": 0.0,
+        "hol_cycles": 0,
+        "hol_rate": 0.0,
+        "hol_output_busy_cycles": 0,
+        "hol_output_busy_rate": 0.0,
+        "hol_arb_loss_cycles": 0,
+        "hol_arb_loss_rate": 0.0,
+        "arb_loss_cycles": 662,
+        "arb_loss_rate": 0.18914285714285714,
+        "arb_loss_events": 664,
+        "out_flits": [
+          3500,
+          874
+        ],
+        "per_dst_0_tp": 1.0,
+        "per_dst_1_tp": 0.24971428571428572,
+        "jain_out": 0.7350567962995805,
+        "jain": 0.9997859528640615,
+        "jain_dst": 0.7350567962995805,
+        "per_src_0_tp": 0.634,
+        "per_src_1_tp": 0.6157142857142858,
+        "trace_offered_pkts": 1509,
+        "trace_offered_flits": 6726,
+        "trace_offered_tp": 1.9217142857142857,
+        "trace_offered_pkt_rate": 0.43114285714285716
+      }
+    },
+    {
+      "arch": "shared",
+      "vc_mode": "per_dst",
+      "vc_num": 2,
+      "queue_depth": null,
+      "load": 0.95,
+      "seed": 1,
+      "capacity": 32,
+      "length_mode": "uniform1-8",
+      "traffic": "hotspot",
+      "cycles": 4000,
+      "warmup": 500,
+      "rdy_period": 0,
+      "rdy_high": 0,
+      "metrics": {
+        "mode": "shared",
+        "cell_num": 32,
+        "vc_num": 2,
+        "vc_mode": "per_dst",
+        "same_cycle_free": false,
+        "delivered_pkts": 997,
+        "delivered_flits": 4373,
+        "delivered_tp": 1.2494285714285713,
+        "utilization": 0.6247142857142857,
+        "accepted_pkts": 997,
+        "accepted_flits": 4371,
+        "accepted_tp": 1.2488571428571429,
+        "avg_pkt_latency": 710.9147442326981,
+        "p99_pkt_latency": 1399.0,
+        "avg_admit_latency": 52.21725888324873,
+        "p99_admit_latency": 89.0,
+        "avg_queue_latency": 48.96990972918756,
+        "avg_pool_occupancy": 30.68914285714286,
+        "pool_utilization": 0.9590357142857143,
+        "max_pool_occupancy": 32,
+        "max_total_pool_occupancy": 63,
+        "source_stall_cycles": 2629,
+        "source_stall_rate": 0.37557142857142856,
+        "source_stall_by_input": [
+          1324,
+          1305
+        ],
+        "output_idle_cycles": 2627,
+        "output_idle_rate": 0.3752857142857143,
+        "output_backpressure_cycles": 0,
+        "output_backpressure_rate": 0.0,
+        "output_backpressure_by_output": [
+          0,
+          0
+        ],
+        "dual_read_cycles": 421,
+        "dual_read_rate": 0.12028571428571429,
+        "dual_read_cycles_by_input": [
+          190,
+          231
+        ],
+        "arb_loss_events": 798,
+        "vc_hol_cycles": 0,
+        "vc_hol_rate": 0.0,
+        "vc_hol_by_input": [
+          0,
+          0
+        ],
+        "out_flits": [
+          3500,
+          873
+        ],
+        "per_input_flits": [
+          2177,
+          2196
+        ],
+        "per_dst_flits": [
+          3500,
+          873
+        ],
+        "per_input_output_flits": [
+          [
+            1760,
+            417
+          ],
+          [
+            1740,
+            456
+          ]
+        ],
+        "per_vc_flits": [
+          3500,
+          873
+        ],
+        "jain_out": 0.7348193750615292,
+        "jain_input": 0.9999811226925629,
+        "per_out_0_tp": 1.0,
+        "per_out_1_tp": 0.24942857142857142,
+        "per_input_0_tp": 0.622,
+        "per_input_1_tp": 0.6274285714285714,
+        "invariant_checks": 4001,
+        "trace_offered_pkts": 1509,
+        "trace_offered_flits": 6726,
+        "trace_offered_tp": 1.9217142857142857,
+        "trace_offered_pkt_rate": 0.43114285714285716
+      }
+    },
+    {
+      "arch": "shared",
+      "vc_mode": "multi2",
+      "vc_num": 2,
+      "queue_depth": null,
+      "load": 0.95,
+      "seed": 1,
+      "capacity": 32,
+      "length_mode": "uniform1-8",
+      "traffic": "hotspot",
+      "cycles": 4000,
+      "warmup": 500,
+      "rdy_period": 0,
+      "rdy_high": 0,
+      "metrics": {
+        "mode": "shared",
+        "cell_num": 32,
+        "vc_num": 2,
+        "vc_mode": "multi2",
+        "same_cycle_free": false,
+        "delivered_pkts": 996,
+        "delivered_flits": 4360,
+        "delivered_tp": 1.2457142857142858,
+        "utilization": 0.6228571428571429,
+        "accepted_pkts": 993,
+        "accepted_flits": 4360,
+        "accepted_tp": 1.2457142857142858,
+        "avg_pkt_latency": 718.425702811245,
+        "p99_pkt_latency": 1392.0,
+        "avg_admit_latency": 53.07339449541284,
+        "p99_admit_latency": 124.0,
+        "avg_queue_latency": 49.94578313253012,
+        "avg_pool_occupancy": 30.960571428571427,
+        "pool_utilization": 0.9675178571428571,
+        "max_pool_occupancy": 32,
+        "max_total_pool_occupancy": 64,
+        "source_stall_cycles": 2640,
+        "source_stall_rate": 0.37714285714285717,
+        "source_stall_by_input": [
+          1332,
+          1308
+        ],
+        "output_idle_cycles": 2640,
+        "output_idle_rate": 0.37714285714285717,
+        "output_backpressure_cycles": 0,
+        "output_backpressure_rate": 0.0,
+        "output_backpressure_by_output": [
+          0,
+          0
+        ],
+        "dual_read_cycles": 256,
+        "dual_read_rate": 0.07314285714285715,
+        "dual_read_cycles_by_input": [
+          114,
+          142
+        ],
+        "arb_loss_events": 772,
+        "vc_hol_cycles": 3901,
+        "vc_hol_rate": 0.5572857142857143,
+        "vc_hol_by_input": [
+          1716,
+          2185
+        ],
+        "out_flits": [
+          3498,
+          862
+        ],
+        "per_input_flits": [
+          2168,
+          2192
+        ],
+        "per_dst_flits": [
+          3498,
+          862
+        ],
+        "per_input_output_flits": [
+          [
+            1755,
+            413
+          ],
+          [
+            1743,
+            449
+          ]
+        ],
+        "per_vc_flits": [
+          2234,
+          2126
+        ],
+        "jain_out": 0.7323187340088425,
+        "jain_input": 0.9999697004383337,
+        "per_out_0_tp": 0.9994285714285714,
+        "per_out_1_tp": 0.24628571428571427,
+        "per_input_0_tp": 0.6194285714285714,
+        "per_input_1_tp": 0.6262857142857143,
+        "invariant_checks": 4001,
+        "trace_offered_pkts": 1509,
+        "trace_offered_flits": 6726,
+        "trace_offered_tp": 1.9217142857142857,
+        "trace_offered_pkt_rate": 0.43114285714285716
+      }
+    },
+    {
+      "arch": "voq",
+      "vc_mode": "none",
+      "vc_num": 0,
+      "queue_depth": 16,
+      "load": 0.95,
+      "seed": 2,
+      "capacity": 32,
+      "length_mode": "uniform1-8",
+      "traffic": "hotspot",
+      "cycles": 4000,
+      "warmup": 500,
+      "rdy_period": 0,
+      "rdy_high": 0,
+      "metrics": {
+        "mode": "voq",
+        "depth": [
+          16,
+          16
+        ],
+        "delivered_pkts": 998,
+        "delivered_flits": 4482,
+        "delivered_tp": 1.2805714285714285,
+        "utilization": 0.6402857142857142,
+        "accepted_pkts": 994,
+        "accepted_flits": 4482,
+        "accepted_tp": 1.2805714285714285,
+        "avg_pkt_latency": 694.187374749499,
+        "p99_pkt_latency": 1303.0,
+        "avg_admit_latency": 28.150406504065042,
+        "p99_admit_latency": 54.0,
+        "avg_queue_latency": 24.789579158316634,
+        "avg_queue_occupancy": 15.456428571428571,
+        "avg_total_queue_occupancy": 30.912857142857142,
+        "max_total_queue_occupancy": 33,
+        "max_input_queue_occupancy": 17,
+        "max_single_voq_occupancy": 16,
+        "max_single_dst_queue_occupancy": 16,
+        "source_stall_rate": 0.3597142857142857,
+        "output_idle_cycles": 2518,
+        "output_idle_rate": 0.3597142857142857,
+        "output_backpressure_cycles": 0,
+        "output_backpressure_rate": 0.0,
+        "hol_cycles": 0,
+        "hol_rate": 0.0,
+        "hol_output_busy_cycles": 0,
+        "hol_output_busy_rate": 0.0,
+        "hol_arb_loss_cycles": 0,
+        "hol_arb_loss_rate": 0.0,
+        "arb_loss_cycles": 644,
+        "arb_loss_rate": 0.184,
+        "arb_loss_events": 647,
+        "out_flits": [
+          3500,
+          982
+        ],
+        "per_dst_0_tp": 1.0,
+        "per_dst_1_tp": 0.2805714285714286,
+        "jain_out": 0.7600965437202841,
+        "jain": 0.9999121955065603,
+        "jain_dst": 0.7600965437202841,
+        "per_src_0_tp": 0.6342857142857142,
+        "per_src_1_tp": 0.6462857142857142,
+        "trace_offered_pkts": 1518,
+        "trace_offered_flits": 6876,
+        "trace_offered_tp": 1.9645714285714286,
+        "trace_offered_pkt_rate": 0.4337142857142857
+      }
+    },
+    {
+      "arch": "shared",
+      "vc_mode": "per_dst",
+      "vc_num": 2,
+      "queue_depth": null,
+      "load": 0.95,
+      "seed": 2,
+      "capacity": 32,
+      "length_mode": "uniform1-8",
+      "traffic": "hotspot",
+      "cycles": 4000,
+      "warmup": 500,
+      "rdy_period": 0,
+      "rdy_high": 0,
+      "metrics": {
+        "mode": "shared",
+        "cell_num": 32,
+        "vc_num": 2,
+        "vc_mode": "per_dst",
+        "same_cycle_free": false,
+        "delivered_pkts": 995,
+        "delivered_flits": 4482,
+        "delivered_tp": 1.2805714285714285,
+        "utilization": 0.6402857142857142,
+        "accepted_pkts": 991,
+        "accepted_flits": 4482,
+        "accepted_tp": 1.2805714285714285,
+        "avg_pkt_latency": 689.2040201005025,
+        "p99_pkt_latency": 1296.0,
+        "avg_admit_latency": 51.903688524590166,
+        "p99_admit_latency": 87.0,
+        "avg_queue_latency": 48.59195979899498,
+        "avg_pool_occupancy": 30.632428571428573,
+        "pool_utilization": 0.9572633928571429,
+        "max_pool_occupancy": 32,
+        "max_total_pool_occupancy": 63,
+        "source_stall_cycles": 2518,
+        "source_stall_rate": 0.3597142857142857,
+        "source_stall_by_input": [
+          1293,
+          1225
+        ],
+        "output_idle_cycles": 2518,
+        "output_idle_rate": 0.3597142857142857,
+        "output_backpressure_cycles": 0,
+        "output_backpressure_rate": 0.0,
+        "output_backpressure_by_output": [
+          0,
+          0
+        ],
+        "dual_read_cycles": 457,
+        "dual_read_rate": 0.13057142857142856,
+        "dual_read_cycles_by_input": [
+          216,
+          241
+        ],
+        "arb_loss_events": 795,
+        "vc_hol_cycles": 0,
+        "vc_hol_rate": 0.0,
+        "vc_hol_by_input": [
+          0,
+          0
+        ],
+        "out_flits": [
+          3500,
+          982
+        ],
+        "per_input_flits": [
+          2208,
+          2274
+        ],
+        "per_dst_flits": [
+          3500,
+          982
+        ],
+        "per_input_output_flits": [
+          [
+            1737,
+            471
+          ],
+          [
+            1763,
+            511
+          ]
+        ],
+        "per_vc_flits": [
+          3500,
+          982
+        ],
+        "jain_out": 0.7600965437202841,
+        "jain_input": 0.9997832046297458,
+        "per_out_0_tp": 1.0,
+        "per_out_1_tp": 0.2805714285714286,
+        "per_input_0_tp": 0.6308571428571429,
+        "per_input_1_tp": 0.6497142857142857,
+        "invariant_checks": 4001,
+        "trace_offered_pkts": 1518,
+        "trace_offered_flits": 6876,
+        "trace_offered_tp": 1.9645714285714286,
+        "trace_offered_pkt_rate": 0.4337142857142857
+      }
+    },
+    {
+      "arch": "shared",
+      "vc_mode": "multi2",
+      "vc_num": 2,
+      "queue_depth": null,
+      "load": 0.95,
+      "seed": 2,
+      "capacity": 32,
+      "length_mode": "uniform1-8",
+      "traffic": "hotspot",
+      "cycles": 4000,
+      "warmup": 500,
+      "rdy_period": 0,
+      "rdy_high": 0,
+      "metrics": {
+        "mode": "shared",
+        "cell_num": 32,
+        "vc_num": 2,
+        "vc_mode": "multi2",
+        "same_cycle_free": false,
+        "delivered_pkts": 992,
+        "delivered_flits": 4452,
+        "delivered_tp": 1.272,
+        "utilization": 0.636,
+        "accepted_pkts": 984,
+        "accepted_flits": 4452,
+        "accepted_tp": 1.272,
+        "avg_pkt_latency": 705.8457661290323,
+        "p99_pkt_latency": 1331.0,
+        "avg_admit_latency": 52.18904958677686,
+        "p99_admit_latency": 127.0,
+        "avg_queue_latency": 49.13709677419355,
+        "avg_pool_occupancy": 30.845714285714287,
+        "pool_utilization": 0.9639285714285715,
+        "max_pool_occupancy": 32,
+        "max_total_pool_occupancy": 64,
+        "source_stall_cycles": 2548,
+        "source_stall_rate": 0.364,
+        "source_stall_by_input": [
+          1283,
+          1265
+        ],
+        "output_idle_cycles": 2548,
+        "output_idle_rate": 0.364,
+        "output_backpressure_cycles": 0,
+        "output_backpressure_rate": 0.0,
+        "output_backpressure_by_output": [
+          0,
+          0
+        ],
+        "dual_read_cycles": 296,
+        "dual_read_rate": 0.08457142857142858,
+        "dual_read_cycles_by_input": [
+          153,
+          143
+        ],
+        "arb_loss_events": 742,
+        "vc_hol_cycles": 3762,
+        "vc_hol_rate": 0.5374285714285715,
+        "vc_hol_by_input": [
+          1968,
+          1794
+        ],
+        "out_flits": [
+          3479,
+          973
+        ],
+        "per_input_flits": [
+          2217,
+          2235
+        ],
+        "per_dst_flits": [
+          3479,
+          973
+        ],
+        "per_input_output_flits": [
+          [
+            1750,
+            467
+          ],
+          [
+            1729,
+            506
+          ]
+        ],
+        "per_vc_flits": [
+          2135,
+          2317
+        ],
+        "jain_out": 0.7593887282694401,
+        "jain_input": 0.9999836533938279,
+        "per_out_0_tp": 0.994,
+        "per_out_1_tp": 0.278,
+        "per_input_0_tp": 0.6334285714285715,
+        "per_input_1_tp": 0.6385714285714286,
+        "invariant_checks": 4001,
+        "trace_offered_pkts": 1518,
+        "trace_offered_flits": 6876,
+        "trace_offered_tp": 1.9645714285714286,
+        "trace_offered_pkt_rate": 0.4337142857142857
+      }
+    },
+    {
+      "arch": "voq",
+      "vc_mode": "none",
+      "vc_num": 0,
+      "queue_depth": 16,
+      "load": 0.95,
+      "seed": 3,
+      "capacity": 32,
+      "length_mode": "uniform1-8",
+      "traffic": "hotspot",
+      "cycles": 4000,
+      "warmup": 500,
+      "rdy_period": 0,
+      "rdy_high": 0,
+      "metrics": {
+        "mode": "voq",
+        "depth": [
+          16,
+          16
+        ],
+        "delivered_pkts": 957,
+        "delivered_flits": 4395,
+        "delivered_tp": 1.2557142857142858,
+        "utilization": 0.6278571428571429,
+        "accepted_pkts": 958,
+        "accepted_flits": 4397,
+        "accepted_tp": 1.2562857142857142,
+        "avg_pkt_latency": 746.8965517241379,
+        "p99_pkt_latency": 1366.0,
+        "avg_admit_latency": 28.72286617492097,
+        "p99_admit_latency": 58.0,
+        "avg_queue_latency": 25.20062695924765,
+        "avg_queue_occupancy": 15.463571428571429,
+        "avg_total_queue_occupancy": 30.927142857142858,
+        "max_total_queue_occupancy": 33,
+        "max_input_queue_occupancy": 17,
+        "max_single_voq_occupancy": 16,
+        "max_single_dst_queue_occupancy": 16,
+        "source_stall_rate": 0.37185714285714283,
+        "output_idle_cycles": 2605,
+        "output_idle_rate": 0.37214285714285716,
+        "output_backpressure_cycles": 0,
+        "output_backpressure_rate": 0.0,
+        "hol_cycles": 0,
+        "hol_rate": 0.0,
+        "hol_output_busy_cycles": 0,
+        "hol_output_busy_rate": 0.0,
+        "hol_arb_loss_cycles": 0,
+        "hol_arb_loss_rate": 0.0,
+        "arb_loss_cycles": 634,
+        "arb_loss_rate": 0.18114285714285713,
+        "arb_loss_events": 639,
+        "out_flits": [
+          3500,
+          895
+        ],
+        "per_dst_0_tp": 1.0,
+        "per_dst_1_tp": 0.2557142857142857,
+        "jain_out": 0.7400194620729024,
+        "jain": 0.9996770047571025,
+        "jain_dst": 0.7400194620729024,
+        "per_src_0_tp": 0.6391428571428571,
+        "per_src_1_tp": 0.6165714285714285,
+        "trace_offered_pkts": 1452,
+        "trace_offered_flits": 6663,
+        "trace_offered_tp": 1.9037142857142857,
+        "trace_offered_pkt_rate": 0.41485714285714287
+      }
+    },
+    {
+      "arch": "shared",
+      "vc_mode": "per_dst",
+      "vc_num": 2,
+      "queue_depth": null,
+      "load": 0.95,
+      "seed": 3,
+      "capacity": 32,
+      "length_mode": "uniform1-8",
+      "traffic": "hotspot",
+      "cycles": 4000,
+      "warmup": 500,
+      "rdy_period": 0,
+      "rdy_high": 0,
+      "metrics": {
+        "mode": "shared",
+        "cell_num": 32,
+        "vc_num": 2,
+        "vc_mode": "per_dst",
+        "same_cycle_free": false,
+        "delivered_pkts": 959,
+        "delivered_flits": 4398,
+        "delivered_tp": 1.2565714285714287,
+        "utilization": 0.6282857142857143,
+        "accepted_pkts": 958,
+        "accepted_flits": 4398,
+        "accepted_tp": 1.2565714285714287,
+        "avg_pkt_latency": 737.6037539103232,
+        "p99_pkt_latency": 1399.0,
+        "avg_admit_latency": 52.432203389830505,
+        "p99_admit_latency": 89.0,
+        "avg_queue_latency": 49.041710114702816,
+        "avg_pool_occupancy": 30.642285714285713,
+        "pool_utilization": 0.9575714285714285,
+        "max_pool_occupancy": 32,
+        "max_total_pool_occupancy": 63,
+        "source_stall_cycles": 2602,
+        "source_stall_rate": 0.3717142857142857,
+        "source_stall_by_input": [
+          1249,
+          1353
+        ],
+        "output_idle_cycles": 2602,
+        "output_idle_rate": 0.3717142857142857,
+        "output_backpressure_cycles": 0,
+        "output_backpressure_rate": 0.0,
+        "output_backpressure_by_output": [
+          0,
+          0
+        ],
+        "dual_read_cycles": 424,
+        "dual_read_rate": 0.12114285714285715,
+        "dual_read_cycles_by_input": [
+          245,
+          179
+        ],
+        "arb_loss_events": 769,
+        "vc_hol_cycles": 0,
+        "vc_hol_rate": 0.0,
+        "vc_hol_by_input": [
+          0,
+          0
+        ],
+        "out_flits": [
+          3500,
+          898
+        ],
+        "per_input_flits": [
+          2251,
+          2147
+        ],
+        "per_dst_flits": [
+          3500,
+          898
+        ],
+        "per_input_output_flits": [
+          [
+            1745,
+            506
+          ],
+          [
+            1755,
+            392
+          ]
+        ],
+        "per_vc_flits": [
+          3500,
+          898
+        ],
+        "jain_out": 0.7407247814942001,
+        "jain_input": 0.9994411265928874,
+        "per_out_0_tp": 1.0,
+        "per_out_1_tp": 0.25657142857142856,
+        "per_input_0_tp": 0.6431428571428571,
+        "per_input_1_tp": 0.6134285714285714,
+        "invariant_checks": 4001,
+        "trace_offered_pkts": 1452,
+        "trace_offered_flits": 6663,
+        "trace_offered_tp": 1.9037142857142857,
+        "trace_offered_pkt_rate": 0.41485714285714287
+      }
+    },
+    {
+      "arch": "shared",
+      "vc_mode": "multi2",
+      "vc_num": 2,
+      "queue_depth": null,
+      "load": 0.95,
+      "seed": 3,
+      "capacity": 32,
+      "length_mode": "uniform1-8",
+      "traffic": "hotspot",
+      "cycles": 4000,
+      "warmup": 500,
+      "rdy_period": 0,
+      "rdy_high": 0,
+      "metrics": {
+        "mode": "shared",
+        "cell_num": 32,
+        "vc_num": 2,
+        "vc_mode": "multi2",
+        "same_cycle_free": false,
+        "delivered_pkts": 947,
+        "delivered_flits": 4346,
+        "delivered_tp": 1.2417142857142858,
+        "utilization": 0.6208571428571429,
+        "accepted_pkts": 948,
+        "accepted_flits": 4346,
+        "accepted_tp": 1.2417142857142858,
+        "avg_pkt_latency": 760.9640971488913,
+        "p99_pkt_latency": 1422.0,
+        "avg_admit_latency": 53.79314040728832,
+        "p99_admit_latency": 117.0,
+        "avg_queue_latency": 50.293558606124606,
+        "avg_pool_occupancy": 30.957142857142856,
+        "pool_utilization": 0.9674107142857142,
+        "max_pool_occupancy": 32,
+        "max_total_pool_occupancy": 64,
+        "source_stall_cycles": 2654,
+        "source_stall_rate": 0.37914285714285717,
+        "source_stall_by_input": [
+          1293,
+          1361
+        ],
+        "output_idle_cycles": 2654,
+        "output_idle_rate": 0.37914285714285717,
+        "output_backpressure_cycles": 0,
+        "output_backpressure_rate": 0.0,
+        "output_backpressure_by_output": [
+          0,
+          0
+        ],
+        "dual_read_cycles": 262,
+        "dual_read_rate": 0.07485714285714286,
+        "dual_read_cycles_by_input": [
+          153,
+          109
+        ],
+        "arb_loss_events": 701,
+        "vc_hol_cycles": 3639,
+        "vc_hol_rate": 0.5198571428571429,
+        "vc_hol_by_input": [
+          1986,
+          1653
+        ],
+        "out_flits": [
+          3473,
+          873
+        ],
+        "per_input_flits": [
+          2208,
+          2138
+        ],
+        "per_dst_flits": [
+          3473,
+          873
+        ],
+        "per_input_output_flits": [
+          [
+            1731,
+            477
+          ],
+          [
+            1742,
+            396
+          ]
+        ],
+        "per_vc_flits": [
+          2083,
+          2263
+        ],
+        "jain_out": 0.7364287720590793,
+        "jain_input": 0.9997406394117151,
+        "per_out_0_tp": 0.9922857142857143,
+        "per_out_1_tp": 0.24942857142857142,
+        "per_input_0_tp": 0.6308571428571429,
+        "per_input_1_tp": 0.6108571428571429,
+        "invariant_checks": 4001,
+        "trace_offered_pkts": 1452,
+        "trace_offered_flits": 6663,
+        "trace_offered_tp": 1.9037142857142857,
+        "trace_offered_pkt_rate": 0.41485714285714287
+      }
+    },
+    {
+      "arch": "voq",
+      "vc_mode": "none",
+      "vc_num": 0,
+      "queue_depth": 16,
+      "load": 0.95,
+      "seed": 4,
+      "capacity": 32,
+      "length_mode": "uniform1-8",
+      "traffic": "hotspot",
+      "cycles": 4000,
+      "warmup": 500,
+      "rdy_period": 0,
+      "rdy_high": 0,
+      "metrics": {
+        "mode": "voq",
+        "depth": [
+          16,
+          16
+        ],
+        "delivered_pkts": 963,
+        "delivered_flits": 4337,
+        "delivered_tp": 1.239142857142857,
+        "utilization": 0.6195714285714286,
+        "accepted_pkts": 962,
+        "accepted_flits": 4337,
+        "accepted_tp": 1.239142857142857,
+        "avg_pkt_latency": 781.4807892004154,
+        "p99_pkt_latency": 1475.0,
+        "avg_admit_latency": 28.82180293501048,
+        "p99_admit_latency": 52.0,
+        "avg_queue_latency": 25.38317757009346,
+        "avg_queue_occupancy": 15.455714285714286,
+        "avg_total_queue_occupancy": 30.911428571428573,
+        "max_total_queue_occupancy": 33,
+        "max_input_queue_occupancy": 17,
+        "max_single_voq_occupancy": 16,
+        "max_single_dst_queue_occupancy": 16,
+        "source_stall_rate": 0.38042857142857145,
+        "output_idle_cycles": 2663,
+        "output_idle_rate": 0.38042857142857145,
+        "output_backpressure_cycles": 0,
+        "output_backpressure_rate": 0.0,
+        "hol_cycles": 0,
+        "hol_rate": 0.0,
+        "hol_output_busy_cycles": 0,
+        "hol_output_busy_rate": 0.0,
+        "hol_arb_loss_cycles": 0,
+        "hol_arb_loss_rate": 0.0,
+        "arb_loss_cycles": 656,
+        "arb_loss_rate": 0.18742857142857142,
+        "arb_loss_events": 657,
+        "out_flits": [
+          3500,
+          837
+        ],
+        "per_dst_0_tp": 1.0,
+        "per_dst_1_tp": 0.23914285714285713,
+        "jain_out": 0.7262062771141562,
+        "jain": 0.9998617384384683,
+        "jain_dst": 0.7262062771141562,
+        "per_src_0_tp": 0.6268571428571429,
+        "per_src_1_tp": 0.6122857142857143,
+        "trace_offered_pkts": 1436,
+        "trace_offered_flits": 6515,
+        "trace_offered_tp": 1.8614285714285714,
+        "trace_offered_pkt_rate": 0.4102857142857143
+      }
+    },
+    {
+      "arch": "shared",
+      "vc_mode": "per_dst",
+      "vc_num": 2,
+      "queue_depth": null,
+      "load": 0.95,
+      "seed": 4,
+      "capacity": 32,
+      "length_mode": "uniform1-8",
+      "traffic": "hotspot",
+      "cycles": 4000,
+      "warmup": 500,
+      "rdy_period": 0,
+      "rdy_high": 0,
+      "metrics": {
+        "mode": "shared",
+        "cell_num": 32,
+        "vc_num": 2,
+        "vc_mode": "per_dst",
+        "same_cycle_free": false,
+        "delivered_pkts": 961,
+        "delivered_flits": 4339,
+        "delivered_tp": 1.2397142857142858,
+        "utilization": 0.6198571428571429,
+        "accepted_pkts": 958,
+        "accepted_flits": 4334,
+        "accepted_tp": 1.2382857142857142,
+        "avg_pkt_latency": 779.525494276795,
+        "p99_pkt_latency": 1459.0,
+        "avg_admit_latency": 53.05084745762712,
+        "p99_admit_latency": 86.0,
+        "avg_queue_latency": 49.63163371488033,
+        "avg_pool_occupancy": 30.757571428571428,
+        "pool_utilization": 0.9611741071428571,
+        "max_pool_occupancy": 32,
+        "max_total_pool_occupancy": 63,
+        "source_stall_cycles": 2666,
+        "source_stall_rate": 0.38085714285714284,
+        "source_stall_by_input": [
+          1305,
+          1361
+        ],
+        "output_idle_cycles": 2661,
+        "output_idle_rate": 0.3801428571428571,
+        "output_backpressure_cycles": 0,
+        "output_backpressure_rate": 0.0,
+        "output_backpressure_by_output": [
+          0,
+          0
+        ],
+        "dual_read_cycles": 409,
+        "dual_read_rate": 0.11685714285714285,
+        "dual_read_cycles_by_input": [
+          211,
+          198
+        ],
+        "arb_loss_events": 780,
+        "vc_hol_cycles": 0,
+        "vc_hol_rate": 0.0,
+        "vc_hol_by_input": [
+          0,
+          0
+        ],
+        "out_flits": [
+          3500,
+          839
+        ],
+        "per_input_flits": [
+          2199,
+          2140
+        ],
+        "per_dst_flits": [
+          3500,
+          839
+        ],
+        "per_input_output_flits": [
+          [
+            1768,
+            431
+          ],
+          [
+            1732,
+            408
+          ]
+        ],
+        "per_vc_flits": [
+          3500,
+          839
+        ],
+        "jain_out": 0.7266881201452441,
+        "jain_input": 0.9998151393687719,
+        "per_out_0_tp": 1.0,
+        "per_out_1_tp": 0.2397142857142857,
+        "per_input_0_tp": 0.6282857142857143,
+        "per_input_1_tp": 0.6114285714285714,
+        "invariant_checks": 4001,
+        "trace_offered_pkts": 1436,
+        "trace_offered_flits": 6515,
+        "trace_offered_tp": 1.8614285714285714,
+        "trace_offered_pkt_rate": 0.4102857142857143
+      }
+    },
+    {
+      "arch": "shared",
+      "vc_mode": "multi2",
+      "vc_num": 2,
+      "queue_depth": null,
+      "load": 0.95,
+      "seed": 4,
+      "capacity": 32,
+      "length_mode": "uniform1-8",
+      "traffic": "hotspot",
+      "cycles": 4000,
+      "warmup": 500,
+      "rdy_period": 0,
+      "rdy_high": 0,
+      "metrics": {
+        "mode": "shared",
+        "cell_num": 32,
+        "vc_num": 2,
+        "vc_mode": "multi2",
+        "same_cycle_free": false,
+        "delivered_pkts": 960,
+        "delivered_flits": 4317,
+        "delivered_tp": 1.2334285714285713,
+        "utilization": 0.6167142857142857,
+        "accepted_pkts": 952,
+        "accepted_flits": 4317,
+        "accepted_tp": 1.2334285714285713,
+        "avg_pkt_latency": 788.4177083333333,
+        "p99_pkt_latency": 1496.0,
+        "avg_admit_latency": 54.01067235859125,
+        "p99_admit_latency": 120.0,
+        "avg_queue_latency": 50.713541666666664,
+        "avg_pool_occupancy": 31.047142857142855,
+        "pool_utilization": 0.9702232142857142,
+        "max_pool_occupancy": 32,
+        "max_total_pool_occupancy": 64,
+        "source_stall_cycles": 2683,
+        "source_stall_rate": 0.3832857142857143,
+        "source_stall_by_input": [
+          1313,
+          1370
+        ],
+        "output_idle_cycles": 2683,
+        "output_idle_rate": 0.3832857142857143,
+        "output_backpressure_cycles": 0,
+        "output_backpressure_rate": 0.0,
+        "output_backpressure_by_output": [
+          0,
+          0
+        ],
+        "dual_read_cycles": 248,
+        "dual_read_rate": 0.07085714285714285,
+        "dual_read_cycles_by_input": [
+          128,
+          120
+        ],
+        "arb_loss_events": 745,
+        "vc_hol_cycles": 3721,
+        "vc_hol_rate": 0.5315714285714286,
+        "vc_hol_by_input": [
+          1771,
+          1950
+        ],
+        "out_flits": [
+          3484,
+          833
+        ],
+        "per_input_flits": [
+          2188,
+          2129
+        ],
+        "per_dst_flits": [
+          3484,
+          833
+        ],
+        "per_input_output_flits": [
+          [
+            1759,
+            429
+          ],
+          [
+            1725,
+            404
+          ]
+        ],
+        "per_vc_flits": [
+          2181,
+          2136
+        ],
+        "jain_out": 0.7261642149461373,
+        "jain_input": 0.9998132507723994,
+        "per_out_0_tp": 0.9954285714285714,
+        "per_out_1_tp": 0.238,
+        "per_input_0_tp": 0.6251428571428571,
+        "per_input_1_tp": 0.6082857142857143,
+        "invariant_checks": 4001,
+        "trace_offered_pkts": 1436,
+        "trace_offered_flits": 6515,
+        "trace_offered_tp": 1.8614285714285714,
+        "trace_offered_pkt_rate": 0.4102857142857143
+      }
+    },
+    {
+      "arch": "voq",
+      "vc_mode": "none",
+      "vc_num": 0,
+      "queue_depth": 16,
+      "load": 0.95,
+      "seed": 5,
+      "capacity": 32,
+      "length_mode": "uniform1-8",
+      "traffic": "hotspot",
+      "cycles": 4000,
+      "warmup": 500,
+      "rdy_period": 0,
+      "rdy_high": 0,
+      "metrics": {
+        "mode": "voq",
+        "depth": [
+          16,
+          16
+        ],
+        "delivered_pkts": 951,
+        "delivered_flits": 4321,
+        "delivered_tp": 1.2345714285714287,
+        "utilization": 0.6172857142857143,
+        "accepted_pkts": 952,
+        "accepted_flits": 4321,
+        "accepted_tp": 1.2345714285714287,
+        "avg_pkt_latency": 889.6855941114616,
+        "p99_pkt_latency": 1502.0,
+        "avg_admit_latency": 29.133333333333333,
+        "p99_admit_latency": 55.0,
+        "avg_queue_latency": 25.621451104100945,
+        "avg_queue_occupancy": 15.468142857142857,
+        "avg_total_queue_occupancy": 30.936285714285713,
+        "max_total_queue_occupancy": 34,
+        "max_input_queue_occupancy": 17,
+        "max_single_voq_occupancy": 16,
+        "max_single_dst_queue_occupancy": 16,
+        "source_stall_rate": 0.38271428571428573,
+        "output_idle_cycles": 2679,
+        "output_idle_rate": 0.38271428571428573,
+        "output_backpressure_cycles": 0,
+        "output_backpressure_rate": 0.0,
+        "hol_cycles": 0,
+        "hol_rate": 0.0,
+        "hol_output_busy_cycles": 0,
+        "hol_output_busy_rate": 0.0,
+        "hol_arb_loss_cycles": 0,
+        "hol_arb_loss_rate": 0.0,
+        "arb_loss_cycles": 657,
+        "arb_loss_rate": 0.18771428571428572,
+        "arb_loss_events": 657,
+        "out_flits": [
+          3500,
+          821
+        ],
+        "per_dst_0_tp": 1.0,
+        "per_dst_1_tp": 0.23457142857142857,
+        "jain_out": 0.7223375800185097,
+        "jain": 0.9999763810928345,
+        "jain_dst": 0.7223375800185097,
+        "per_src_0_tp": 0.6202857142857143,
+        "per_src_1_tp": 0.6142857142857143,
+        "trace_offered_pkts": 1493,
+        "trace_offered_flits": 6738,
+        "trace_offered_tp": 1.925142857142857,
+        "trace_offered_pkt_rate": 0.42657142857142855
+      }
+    },
+    {
+      "arch": "shared",
+      "vc_mode": "per_dst",
+      "vc_num": 2,
+      "queue_depth": null,
+      "load": 0.95,
+      "seed": 5,
+      "capacity": 32,
+      "length_mode": "uniform1-8",
+      "traffic": "hotspot",
+      "cycles": 4000,
+      "warmup": 500,
+      "rdy_period": 0,
+      "rdy_high": 0,
+      "metrics": {
+        "mode": "shared",
+        "cell_num": 32,
+        "vc_num": 2,
+        "vc_mode": "per_dst",
+        "same_cycle_free": false,
+        "delivered_pkts": 951,
+        "delivered_flits": 4316,
+        "delivered_tp": 1.233142857142857,
+        "utilization": 0.6165714285714285,
+        "accepted_pkts": 950,
+        "accepted_flits": 4319,
+        "accepted_tp": 1.234,
+        "avg_pkt_latency": 884.6340694006309,
+        "p99_pkt_latency": 1498.0,
+        "avg_admit_latency": 53.60897435897436,
+        "p99_admit_latency": 88.0,
+        "avg_queue_latency": 50.20715036803365,
+        "avg_pool_occupancy": 30.745714285714286,
+        "pool_utilization": 0.9608035714285714,
+        "max_pool_occupancy": 32,
+        "max_total_pool_occupancy": 63,
+        "source_stall_cycles": 2681,
+        "source_stall_rate": 0.383,
+        "source_stall_by_input": [
+          1325,
+          1356
+        ],
+        "output_idle_cycles": 2684,
+        "output_idle_rate": 0.38342857142857145,
+        "output_backpressure_cycles": 0,
+        "output_backpressure_rate": 0.0,
+        "output_backpressure_by_output": [
+          0,
+          0
+        ],
+        "dual_read_cycles": 429,
+        "dual_read_rate": 0.12257142857142857,
+        "dual_read_cycles_by_input": [
+          212,
+          217
+        ],
+        "arb_loss_events": 777,
+        "vc_hol_cycles": 0,
+        "vc_hol_rate": 0.0,
+        "vc_hol_by_input": [
+          0,
+          0
+        ],
+        "out_flits": [
+          3500,
+          816
+        ],
+        "per_input_flits": [
+          2172,
+          2144
+        ],
+        "per_dst_flits": [
+          3500,
+          816
+        ],
+        "per_input_output_flits": [
+          [
+            1773,
+            399
+          ],
+          [
+            1727,
+            417
+          ]
+        ],
+        "per_vc_flits": [
+          3500,
+          816
+        ],
+        "jain_out": 0.7211235554190136,
+        "jain_input": 0.9999579142653463,
+        "per_out_0_tp": 1.0,
+        "per_out_1_tp": 0.23314285714285715,
+        "per_input_0_tp": 0.6205714285714286,
+        "per_input_1_tp": 0.6125714285714285,
+        "invariant_checks": 4001,
+        "trace_offered_pkts": 1493,
+        "trace_offered_flits": 6738,
+        "trace_offered_tp": 1.925142857142857,
+        "trace_offered_pkt_rate": 0.42657142857142855
+      }
+    },
+    {
+      "arch": "shared",
+      "vc_mode": "multi2",
+      "vc_num": 2,
+      "queue_depth": null,
+      "load": 0.95,
+      "seed": 5,
+      "capacity": 32,
+      "length_mode": "uniform1-8",
+      "traffic": "hotspot",
+      "cycles": 4000,
+      "warmup": 500,
+      "rdy_period": 0,
+      "rdy_high": 0,
+      "metrics": {
+        "mode": "shared",
+        "cell_num": 32,
+        "vc_num": 2,
+        "vc_mode": "multi2",
+        "same_cycle_free": false,
+        "delivered_pkts": 950,
+        "delivered_flits": 4315,
+        "delivered_tp": 1.2328571428571429,
+        "utilization": 0.6164285714285714,
+        "accepted_pkts": 951,
+        "accepted_flits": 4313,
+        "accepted_tp": 1.2322857142857142,
+        "avg_pkt_latency": 892.0473684210526,
+        "p99_pkt_latency": 1513.0,
+        "avg_admit_latency": 54.23504273504273,
+        "p99_admit_latency": 118.0,
+        "avg_queue_latency": 50.782105263157895,
+        "avg_pool_occupancy": 30.948857142857143,
+        "pool_utilization": 0.9671517857142857,
+        "max_pool_occupancy": 32,
+        "max_total_pool_occupancy": 64,
+        "source_stall_cycles": 2687,
+        "source_stall_rate": 0.38385714285714284,
+        "source_stall_by_input": [
+          1327,
+          1360
+        ],
+        "output_idle_cycles": 2685,
+        "output_idle_rate": 0.38357142857142856,
+        "output_backpressure_cycles": 0,
+        "output_backpressure_rate": 0.0,
+        "output_backpressure_by_output": [
+          0,
+          0
+        ],
+        "dual_read_cycles": 291,
+        "dual_read_rate": 0.08314285714285714,
+        "dual_read_cycles_by_input": [
+          150,
+          141
+        ],
+        "arb_loss_events": 740,
+        "vc_hol_cycles": 3532,
+        "vc_hol_rate": 0.5045714285714286,
+        "vc_hol_by_input": [
+          1788,
+          1744
+        ],
+        "out_flits": [
+          3491,
+          824
+        ],
+        "per_input_flits": [
+          2172,
+          2143
+        ],
+        "per_dst_flits": [
+          3491,
+          824
+        ],
+        "per_input_output_flits": [
+          [
+            1767,
+            405
+          ],
+          [
+            1724,
+            419
+          ]
+        ],
+        "per_vc_flits": [
+          2185,
+          2130
+        ],
+        "jain_out": 0.7235792986149525,
+        "jain_input": 0.9999548336724478,
+        "per_out_0_tp": 0.9974285714285714,
+        "per_out_1_tp": 0.23542857142857143,
+        "per_input_0_tp": 0.6205714285714286,
+        "per_input_1_tp": 0.6122857142857143,
+        "invariant_checks": 4001,
+        "trace_offered_pkts": 1493,
+        "trace_offered_flits": 6738,
+        "trace_offered_tp": 1.925142857142857,
+        "trace_offered_pkt_rate": 0.42657142857142855
+      }
+    }
+  ]
+}
