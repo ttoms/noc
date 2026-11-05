@@ -1,0 +1,78 @@
+// mo_fifo_top assertions (immediate, iverilog-compatible)
+
+initial begin
+    if (FLIT_W < 1) begin
+        $fatal(1, "[%m] FLIT_W must be >= 1");
+    end
+    if (N < 1) begin
+        $fatal(1, "[%m] N must be >= 1");
+    end
+    if (!(VC_NUM >= 2 && (VC_NUM & (VC_NUM - 1)) == 0)) begin
+        $fatal(1, "[%m] VC_NUM must be a power of two >= 2");
+    end
+    if (!(CELL_NUM >= 2 && (CELL_NUM & (CELL_NUM - 1)) == 0)) begin
+        $fatal(1, "[%m] CELL_NUM must be a power of two >= 2");
+    end
+    if (DST_W < 1 || VC_W < 1 || QUOTA_W < 1) begin
+        $fatal(1, "[%m] DST_W/VC_W/QUOTA_W must be >= 1");
+    end
+end
+
+always @(posedge clk) begin
+    if (rst_n) begin
+        if (in_rdy !== (alloc_rdy && push_rdy)) begin
+            $fatal(1, "[%m] in_rdy mismatch");
+        end
+        if (in_wr !== (in_vld && in_rdy)) begin
+            $fatal(1, "[%m] in_wr mismatch");
+        end
+        if (free_req !== pop_vld) begin
+            $fatal(1, "[%m] free_req/pop_vld mismatch");
+        end
+        for (int o = 0; o < N; o++) begin
+            if (sel_vld[o]) begin
+                if (!vc_locked[sel_vc[o*VC_W +: VC_W]]) begin
+                    $fatal(1, "[%m] selected VC is not locked");
+                end
+                if (out_vc[o*VC_W +: VC_W] !== sel_vc[o*VC_W +: VC_W]) begin
+                    $fatal(1, "[%m] out_vc mismatch");
+                end
+                if (!empty[sel_vc[o*VC_W +: VC_W]]) begin
+                    if (!out_vld[o]) begin
+                        $fatal(1, "[%m] non-empty selected VC has out_vld=0");
+                    end
+                    if (head_dst[sel_vc[o*VC_W +: VC_W]*DST_W +: DST_W]
+                        !== DST_W'(o)) begin
+                        $fatal(1, "[%m] selected VC head destination mismatch");
+                    end
+                end else if (out_vld[o]) begin
+                    $fatal(1, "[%m] empty selected VC has out_vld=1");
+                end
+            end else if (out_vld[o]) begin
+                $fatal(1, "[%m] out_vld without selection");
+            end
+            if (out_vld[o] && out_rdy[o]) begin
+                if (!pop_vld[o] || !free_req[o] || !pop_rdy[o]) begin
+                    $fatal(1, "[%m] transfer without pop/free");
+                end
+                if (pop_qid[o*VC_W +: VC_W] !== sel_vc[o*VC_W +: VC_W]) begin
+                    $fatal(1, "[%m] pop_qid mismatch");
+                end
+                if (free_id[o*ID_W +: ID_W]
+                    !== head_id[sel_vc[o*VC_W +: VC_W]*ID_W +: ID_W]) begin
+                    $fatal(1, "[%m] free_id mismatch");
+                end
+            end else if (pop_vld[o] || free_req[o]) begin
+                $fatal(1, "[%m] pop/free without transfer");
+            end
+        end
+        for (int o = 0; o < N; o++) begin
+            for (int q = o + 1; q < N; q++) begin
+                if (sel_vld[o] && sel_vld[q] &&
+                    (sel_vc[o*VC_W +: VC_W] == sel_vc[q*VC_W +: VC_W])) begin
+                    $fatal(1, "[%m] two outputs selected the same VC");
+                end
+            end
+        end
+    end
+end

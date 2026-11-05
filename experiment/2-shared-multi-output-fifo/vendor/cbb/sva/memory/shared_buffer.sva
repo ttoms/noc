@@ -1,0 +1,27 @@
+// shared_buffer assertions (immediate, iverilog-compatible)
+
+initial begin
+    if (DATA_W < 1) begin
+        $fatal(1, "[%m] DATA_W must be >= 1");
+    end
+    if (!(CELL_NUM >= 2 && (CELL_NUM & (CELL_NUM - 1)) == 0)) begin
+        $fatal(1, "[%m] CELL_NUM must be a power of two >= 2, got %0d", CELL_NUM);
+    end
+    if (N < 1) begin
+        $fatal(1, "[%m] N must be >= 1");
+    end
+    if (ADDR_W != $clog2(CELL_NUM)) begin
+        $fatal(1, "[%m] ADDR_W must equal $clog2(CELL_NUM)");
+    end
+end
+
+always @(posedge clk) begin
+    if (rst_n) begin
+        if (wr_rdy !== 1'b1) begin
+            $fatal(1, "[%m] wr_rdy must be 1");
+        end
+        if (rd_rdy !== {N{1'b1}}) begin
+            $fatal(1, "[%m] rd_rdy must be all ones");
+        end
+    end
+end

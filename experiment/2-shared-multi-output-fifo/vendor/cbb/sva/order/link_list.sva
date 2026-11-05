@@ -1,0 +1,57 @@
+// link_list assertions (immediate, iverilog-compatible)
+
+initial begin
+    if (!(ID_NUM >= 2 && (ID_NUM & (ID_NUM - 1)) == 0)) begin
+        $fatal(1, "[%m] ID_NUM must be a power of two >= 2");
+    end
+    if (!(QID_NUM >= 2 && (QID_NUM & (QID_NUM - 1)) == 0)) begin
+        $fatal(1, "[%m] QID_NUM must be a power of two >= 2");
+    end
+    if (N < 1) begin
+        $fatal(1, "[%m] N must be >= 1");
+    end
+    if (ID_W != $clog2(ID_NUM)) begin
+        $fatal(1, "[%m] ID_W must equal $clog2(ID_NUM)");
+    end
+    if (QID_W != $clog2(QID_NUM)) begin
+        $fatal(1, "[%m] QID_W must equal $clog2(QID_NUM)");
+    end
+    if (DST_W < 1) begin
+        $fatal(1, "[%m] DST_W must be >= 1");
+    end
+end
+
+always @(posedge clk) begin
+    if (rst_n) begin
+        if (push_rdy !== 1'b1) begin
+            $fatal(1, "[%m] push_rdy must be 1");
+        end
+        for (int p = 0; p < N; p++) begin
+            if (pop_vld[p] && !pop_rdy[p]) begin
+                $fatal(1, "[%m] pop_vld[%0d] on an empty queue", p);
+            end
+            if (pop_vld[p] &&
+                (pop_id[p*ID_W +: ID_W] !==
+                 head_q[pop_qid[p*QID_W +: QID_W]])) begin
+                $fatal(1, "[%m] pop_id mismatch on port %0d", p);
+            end
+        end
+        for (int p = 0; p < N; p++) begin
+            for (int r = p + 1; r < N; r++) begin
+                if (pop_vld[p] && pop_vld[r] &&
+                    (pop_qid[p*QID_W +: QID_W] ==
+                     pop_qid[r*QID_W +: QID_W])) begin
+                    $fatal(1, "[%m] two pop ports selected the same queue");
+                end
+            end
+        end
+        for (int q = 0; q < QID_NUM; q++) begin
+            if (empty[q] !== ~ne_q[q]) begin
+                $fatal(1, "[%m] empty mismatch on queue %0d", q);
+            end
+            if (full[q] !== 1'b0) begin
+                $fatal(1, "[%m] full must be 0");
+            end
+        end
+    end
+end

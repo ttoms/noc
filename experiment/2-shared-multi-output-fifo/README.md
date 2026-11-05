@@ -1,6 +1,6 @@
 # 2 — Shared-buffer Multi-output FIFO
 
-> 状态：**架构（C0/E0）+ E1 cycle model 完成；暂无 RTL**
+> 状态：**架构（C0/E0）+ E1 cycle model + E2 集成 RTL（定向 TB）完成；逐 cycle co-sim 待补**
 > 目标：为 NoC 的 1-write / N-read 共享缓冲 FIFO 定义可实现的 CBB 组合与
 > 集成契约；第一版不做 VC quota，后续 quota 只按 VC 计，不按 output 计。
 
@@ -18,6 +18,7 @@
 - `link_list`：每 VC 的 cell 链，维护 head/tail/next。
 - `shared_buffer`：1W N R cell 存储。
 - `mo_fifo_top`：上述三件 + 每输出 VC 仲裁 + 反压/配额钩子。
+- `xbar_2x2_shared`：NOC 集成层，两个 `mo_fifo_top` + 每输出 2:1 RR/包锁。
 
 ## 文档
 
@@ -26,6 +27,8 @@
 - [架构与接口](docs/architecture.md)
 - [E1 计划与口径](docs/e1-plan.md)
 - [E1 模型与 2x2 对比报告](reports/e1_shared_fifo.md)
+- [E2 2x2 集成 RTL 与定向 TB](docs/e2-integration.md)
+- 集成 RTL：[rtl/xbar_2x2_shared.sv](rtl/xbar_2x2_shared.sv)
 - CBB 依赖与固定版本：[vendor/cbb/README.md](vendor/cbb/README.md)
 
 ## 非目标（v1）

@@ -1,0 +1,54 @@
+// idpool assertions (immediate, iverilog-compatible)
+
+initial begin
+    if (!(ID_NUM >= 2 && (ID_NUM & (ID_NUM - 1)) == 0)) begin
+        $fatal(1, "[%m] ID_NUM must be a power of two >= 2, got %0d", ID_NUM);
+    end
+    if (N_FREE < 1) begin
+        $fatal(1, "[%m] N_FREE must be >= 1");
+    end
+    if (ID_W != $clog2(ID_NUM)) begin
+        $fatal(1, "[%m] ID_W must equal $clog2(ID_NUM), got %0d", ID_W);
+    end
+    if (CNT_W != $clog2(ID_NUM + 1)) begin
+        $fatal(1, "[%m] CNT_W must equal $clog2(ID_NUM+1), got %0d", CNT_W);
+    end
+end
+
+function automatic int idpool_popcount(input logic [ID_NUM-1:0] v);
+    int c;
+    c = 0;
+    for (int i = 0; i < ID_NUM; i++) begin
+        c += v[i];
+    end
+    return c;
+endfunction
+
+always @(posedge clk) begin
+    if (rst_n) begin
+        if (alloc_rdy !== (|free_mask_eff)) begin
+            $fatal(1, "[%m] alloc_rdy mismatch");
+        end
+        if (alloc_rdy && !free_mask_eff[alloc_id]) begin
+            $fatal(1, "[%m] alloc_id is not free");
+        end
+        for (int p = 0; p < N_FREE; p++) begin
+            if (free_err[p] && !free_req[p]) begin
+                $fatal(1, "[%m] free_err without free_req");
+            end
+            if (free_req[p] && free_mask[free_id[p*ID_W +: ID_W]] &&
+                !free_err[p]) begin
+                $fatal(1, "[%m] repeated free not flagged");
+            end
+        end
+        if (count != CNT_W'(ID_NUM - idpool_popcount(free_mask))) begin
+            $fatal(1, "[%m] count/popcount mismatch");
+        end
+        if (full !== (count == CNT_W'(ID_NUM))) begin
+            $fatal(1, "[%m] full mismatch");
+        end
+        if (empty !== ~alloc_rdy) begin
+            $fatal(1, "[%m] empty mismatch");
+        end
+    end
+end
