@@ -164,7 +164,8 @@ class Stats:
 
 
 class Switch:
-    def __init__(self, sources, cell_num, vc_num, n_out, warmup=0):
+    def __init__(self, sources, cell_num, vc_num, n_out, warmup=0,
+                 rdy_period=0, rdy_high=0):
         self.n_out = n_out
         self.warmup = warmup
         self.fifos = [SharedFifo(i, cell_num, vc_num) for i in range(2)]
@@ -175,9 +176,13 @@ class Switch:
         self.rr_out = [0] * n_out
         self.stats = Stats()
         self.cycle = 0
+        self.rdy_period = rdy_period
+        self.rdy_high = rdy_high
 
     def _out_ready(self, out: int, cycle: int) -> bool:
-        return True
+        if self.rdy_period <= 0:
+            return True
+        return ((cycle + 2 * out) % self.rdy_period) < self.rdy_high
 
     def step(self) -> None:
         cycle = self.cycle
@@ -271,10 +276,12 @@ class Switch:
 
 
 def run(trace_path: str, cell_num: int, vc_num: int, n_out: int,
-        cycles: int, warmup: int, csv_path: str | None = None) -> dict:
+        cycles: int, warmup: int, csv_path: str | None = None,
+        rdy_period: int = 0, rdy_high: int = 0) -> dict:
     by_src = load_trace(trace_path)
     sources = [Source(by_src.get(0, [])), Source(by_src.get(1, []))]
-    sw = Switch(sources, cell_num, vc_num, n_out, warmup)
+    sw = Switch(sources, cell_num, vc_num, n_out, warmup,
+                rdy_period=rdy_period, rdy_high=rdy_high)
     for _ in range(warmup):
         sw.step()
     sw.stats = Stats()
@@ -306,9 +313,12 @@ def main() -> int:
     ap.add_argument("--cycles", type=int, default=2600)
     ap.add_argument("--warmup", type=int, default=0)
     ap.add_argument("--csv", default=None)
+    ap.add_argument("--rdy-period", type=int, default=0)
+    ap.add_argument("--rdy-high", type=int, default=0)
     args = ap.parse_args()
     print(run(args.trace, args.cell_num, args.vc_num, args.n_out,
-              args.cycles, args.warmup, args.csv))
+              args.cycles, args.warmup, args.csv,
+              args.rdy_period, args.rdy_high))
     return 0
 
 

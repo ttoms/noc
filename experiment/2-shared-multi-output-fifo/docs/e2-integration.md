@@ -1,6 +1,6 @@
 # E2 — 2x2 集成 RTL（定向 TB）
 
-> 状态：集成 RTL + 定向 TB + trace-driven 功能 TB + 逐包逐 cycle co-sim 完成（cell16/VC2，15/15 exact）。
+> 状态：集成 RTL + 定向 TB + trace TB + 逐包逐 cycle co-sim 完成（cell16/32/64、VC2/4、100%/75% ready 全部 exact）。
 > CBB pin：`cbb_proj` `af593e9`，见 `vendor/cbb/README.md`。
 
 ## 1. 拓扑
@@ -49,15 +49,15 @@
 - 2600 cycles 内输出 893 个包；`data_errors=0`、`protocol_errors=0`。
 - 相同 trace 跑 E1 模型：930 个包；RTL 的 893 个与模型全部重合，无 RTL-only 包。
 - 早期 E1 模型是组合选择/组合输出仲裁，与 RTL 时序不一致；新建
-  `scripts/model_e2.py` 按 RTL 状态机重建后，15/15 runs（5 seeds × load
-  0.8/0.9/1.0）包集合完全一致，每个包 `start/end` 差为 0。
+  `scripts/model_e2.py` 按 RTL 状态机重建后，主矩阵 90/90、反压 15/15
+  runs 全部 exact（包集合一致，每包 start/end 差 0）。
 - 复现脚本：`scripts/run_e2_cosim.py`、`scripts/trace_to_csv.py`、
   `scripts/compare_e2_model.py`；报告：[`../reports/e2_cosim.md`](../reports/e2_cosim.md)。
 
 ## 5. 限制 / 下一步
 
-- 逐 cycle co-sim 已完成 cell16/VC2 的 15/15 exact；尚未覆盖 cell32/64、
-  VC4、输出反压、hotspot/bursty。
+- 逐 cycle co-sim 已覆盖 cell16/32/64、VC2/4、100%/75% ready；尚未覆盖
+  hotspot/bursty、quota、过载 >1.0。
 - 未做随机压力、输出 backpressure 全矩阵、SVA 运行时。
 - `mo_fifo_top` / 集成层的 selection 暂用显式 `always_ff`，CBB 规范待重构。
 - 下一步：先做 trace-driven co-sim（payload/包序/时序对齐），再跑

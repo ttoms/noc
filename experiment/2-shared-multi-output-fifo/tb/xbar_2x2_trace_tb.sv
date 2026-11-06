@@ -4,8 +4,16 @@ module xbar_2x2_trace_tb;
 
     localparam int FLIT_W   = 32;
     localparam int N        = 2;
+`ifdef TB_VC_NUM
+    localparam int VC_NUM   = `TB_VC_NUM;
+`else
     localparam int VC_NUM   = 2;
+`endif
+`ifdef TB_CELL_NUM
+    localparam int CELL_NUM = `TB_CELL_NUM;
+`else
     localparam int CELL_NUM = 16;
+`endif
     localparam int DST_W    = $clog2(N);
     localparam int VC_W     = $clog2(VC_NUM);
     localparam int MAX_PKTS = 4096;
@@ -33,6 +41,8 @@ module xbar_2x2_trace_tb;
     reg [1023:0] line_buf;
     integer sim_cycles;
     integer cycle;
+    integer rdy_period;
+    integer rdy_high;
     logic done;
 
     integer n0;
@@ -95,7 +105,15 @@ module xbar_2x2_trace_tb;
         .out_vc     (out_vc     )
     );
 
-    assign out_rdy = {N{1'b1}};
+    always_comb begin
+        for (int o = 0; o < N; o++) begin
+            if (rdy_period <= 0) begin
+                out_rdy[o] = 1'b1;
+            end else begin
+                out_rdy[o] = ((cycle + 2*o) % rdy_period) < rdy_high;
+            end
+        end
+    end
 
     assign in_vld = {cur_vld[1], cur_vld[0]};
     assign in_data = {cur_seq[1][15:0], cur_flit[1][15:0],
@@ -147,6 +165,10 @@ module xbar_2x2_trace_tb;
         end
         sim_cycles = 4000;
         $value$plusargs("CYCLES=%d", sim_cycles);
+        rdy_period = 0;
+        rdy_high = 0;
+        $value$plusargs("RDY_PERIOD=%d", rdy_period);
+        $value$plusargs("RDY_HIGH=%d", rdy_high);
 
         trace_fd = $fopen(trace_path, "r");
         if (trace_fd == 0) begin

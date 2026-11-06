@@ -74,10 +74,12 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--seeds", default="1,2,3,4,5")
     ap.add_argument("--loads", default="0.8,0.9,1.0")
-    ap.add_argument("--cell-num", type=int, default=16)
-    ap.add_argument("--vc-num", type=int, default=2)
+    ap.add_argument("--cell-nums", default="16")
+    ap.add_argument("--vc-nums", default="2")
     ap.add_argument("--trace-cycles", type=int, default=2500)
     ap.add_argument("--sim-cycles", type=int, default=2600)
+    ap.add_argument("--rdy-period", type=int, default=0)
+    ap.add_argument("--rdy-high", type=int, default=0)
     ap.add_argument("--workdir", default="/root/Temp/e2_cosim")
     ap.add_argument("--outdir", default="results/e2_cosim")
     args = ap.parse_args()
@@ -86,19 +88,24 @@ def main() -> int:
     outdir = Path(args.outdir)
     work.mkdir(parents=True, exist_ok=True)
     outdir.mkdir(parents=True, exist_ok=True)
-    simv = work / "xbar_trace_tb"
-    compile_cmd = [
-        "iverilog", "-g2012", "-o", str(simv),
-        str(RTL), *[str(p) for p in CBB], str(TB),
-    ]
-    subprocess.run(compile_cmd, check=True)
-
     seeds = [int(x) for x in args.seeds.split(",")]
     loads = [float(x) for x in args.loads.split(",")]
+    cell_nums = [int(x) for x in args.cell_nums.split(",")]
+    vc_nums = [int(x) for x in args.vc_nums.split(",")]
     rows = []
-    for seed in seeds:
-        for load in loads:
-            stem = f"l{load:g}_s{seed}"
+    for cell_num in cell_nums:
+      for vc_num in vc_nums:
+        simv = work / f"xbar_trace_tb_c{cell_num}_v{vc_num}"
+        compile_cmd = [
+            "iverilog", "-g2012",
+            f"-DTB_CELL_NUM={cell_num}", f"-DTB_VC_NUM={vc_num}",
+            "-o", str(simv),
+            str(RTL), *[str(p) for p in CBB], str(TB),
+        ]
+        subprocess.run(compile_cmd, check=True)
+        for seed in seeds:
+          for load in loads:
+            stem = f"c{cell_num}_v{vc_num}_l{load:g}_s{seed}"
             base = work / f"{stem}_base.jsonl"
             vc = work / f"{stem}_vc.jsonl"
             vc_off = work / f"{stem}_vc_off.jsonl"
@@ -115,7 +122,7 @@ def main() -> int:
                 check=True,
                 stdout=subprocess.DEVNULL,
             )
-            derive(base, vc, args.vc_num, seed)
+            derive(base, vc, vc_num, seed)
             offset_trace(vc, vc_off, 5)
             subprocess.run(
                 [
@@ -129,13 +136,16 @@ def main() -> int:
                 [
                     "vvp", str(simv), f"+TRACE={trace_csv}", f"+OUT={rtl_csv}",
                     f"+CYCLES={args.sim_cycles}",
+                    f"+RDY_PERIOD={args.rdy_period}",
+                    f"+RDY_HIGH={args.rdy_high}",
                 ],
                 check=True,
                 stdout=subprocess.DEVNULL,
             )
             model_e2.run(
-                str(vc_off), args.cell_num, args.vc_num, 2,
+                str(vc_off), cell_num, vc_num, 2,
                 args.sim_cycles, 0, str(model_csv),
+                args.rdy_period, args.rdy_high,
             )
             m = load_csv(model_csv)
             r = load_csv(rtl_csv)
@@ -153,6 +163,8 @@ def main() -> int:
             )
             rows.append(
                 {
+                    "cell_num": cell_num,
+                    "vc_num": vc_num,
                     "load": load,
                     "seed": seed,
                     "model_pkts": len(m),
@@ -164,7 +176,7 @@ def main() -> int:
                 }
             )
             print(
-                f"load={load:g} seed={seed} model={len(m)} rtl={len(r)} "
+                f"cell={cell_num} vc={vc_num} load={load:g} seed={seed} model={len(m)} rtl={len(r)} "
                 f"common={len(common)} exact={ok}",
                 flush=True,
             )
