@@ -1,6 +1,6 @@
 # E2 — 2x2 集成 RTL（定向 TB）
 
-> 状态：集成 RTL + 定向 TB + trace-driven 功能 TB 完成；与 E1 cycle model 的逐 cycle co-sim 尚未对齐。
+> 状态：集成 RTL + 定向 TB + trace-driven 功能 TB + 逐包逐 cycle co-sim 完成（cell16/VC2，15/15 exact）。
 > CBB pin：`cbb_proj` `af593e9`，见 `vendor/cbb/README.md`。
 
 ## 1. 拓扑
@@ -48,17 +48,16 @@
 - 971 个包、2500 cycles（`load=0.9`、uniform1-8、multi2 VC）输入 RTL。
 - 2600 cycles 内输出 893 个包；`data_errors=0`、`protocol_errors=0`。
 - 相同 trace 跑 E1 模型：930 个包；RTL 的 893 个与模型全部重合，无 RTL-only 包。
-- 时间未对齐：`start/end` 差值均值约 +50 cycles，范围 -11～+160，标准差约 39；
-  说明当前 E1 模型是组合选择/组合输出仲裁，而 RTL 的 mo_fifo selection 与
-  输出仲裁各多 1 拍寄存，且链路时序不同，不能直接逐 cycle 比较。
-- 复现脚本：`scripts/trace_to_csv.py`、`scripts/compare_e2_model.py`。
+- 早期 E1 模型是组合选择/组合输出仲裁，与 RTL 时序不一致；新建
+  `scripts/model_e2.py` 按 RTL 状态机重建后，15/15 runs（5 seeds × load
+  0.8/0.9/1.0）包集合完全一致，每个包 `start/end` 差为 0。
+- 复现脚本：`scripts/run_e2_cosim.py`、`scripts/trace_to_csv.py`、
+  `scripts/compare_e2_model.py`；报告：[`../reports/e2_cosim.md`](../reports/e2_cosim.md)。
 
 ## 5. 限制 / 下一步
 
-- **未做逐 cycle co-sim**：E1 Python 模型使用组合选择/组合输出仲裁，RTL
-  的 mo_fifo selection 与输出仲裁各多 1 拍寄存；需要给模型加
-  `registered selection` + 输出仲裁寄存参数，或把 RTL 改成组合选择后再对齐。
-  当前只做到包集合/顺序/数据正确，时间差未收敛。
+- 逐 cycle co-sim 已完成 cell16/VC2 的 15/15 exact；尚未覆盖 cell32/64、
+  VC4、输出反压、hotspot/bursty。
 - 未做随机压力、输出 backpressure 全矩阵、SVA 运行时。
 - `mo_fifo_top` / 集成层的 selection 暂用显式 `always_ff`，CBB 规范待重构。
 - 下一步：先做 trace-driven co-sim（payload/包序/时序对齐），再跑
