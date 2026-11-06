@@ -13,6 +13,7 @@
 //   - Fixed two inputs; N outputs parameterized (2x2 uses N=2)
 //   - v1 no quota; quota ports are tied off
 //   - Output arbiter is registered; one cycle selection latency
+//   - Output lock uses dffr; next-state/enable are continuous logic
 //==============================================================================
 module xbar_2x2_shared #(
     parameter   int FLIT_W      =   32                                  ,
@@ -58,13 +59,13 @@ logic [VC_NUM*QUOTA_W -1:0] quota_zero  ;
 genvar i;
 genvar o;
 
-always_comb begin
-    for (int o_i = 0; o_i < N; o_i++) begin
-        for (int i_i = 0; i_i < 2; i_i++) begin
-            req[o_i*2 + i_i] = !locked[o_i] && f_vld[i_i*N + o_i];
+generate
+    for (genvar o_i = 0; o_i < N; o_i++) begin : g_req
+        for (genvar i_i = 0; i_i < 2; i_i++) begin : g_req_in
+            assign req[o_i*2 + i_i] = !locked[o_i] && f_vld[i_i*N + o_i];
         end
     end
-end
+endgenerate
 
 assign quota_zero = '0;
 
@@ -150,27 +151,59 @@ generate
     end
 endgenerate
 
-always_ff @(posedge clk or negedge rst_n) begin
-    if (!rst_n) begin
-        locked    <= '0;
-        locked_in <= '0;
-    end else begin
-        for (int o_i = 0; o_i < N; o_i++) begin
-            if (locked[o_i]) begin
-                if (f_vld[locked_in[o_i]*N + o_i] && out_rdy[o_i]
-                    && f_eop[locked_in[o_i]*N + o_i]) begin
-                    locked[o_i] <= 1'b0;
-                end
-            end else if (gnt_vld[o_i]) begin
-                locked[o_i]    <= 1'b1;
-                locked_in[o_i] <= gnt_idx[o_i];
-                if (out_rdy[o_i] && f_eop[gnt_idx[o_i]*N + o_i]) begin
-                    locked[o_i] <= 1'b0;
-                end
-            end
-        end
+// Output lock state: dffr + continuous next-state/enable.  A grant that
+// already completes (EOP with out_rdy) must not enter the locked state.
+logic [N -1:0]  lock_set            ;
+logic [N -1:0]  lock_clr            ;
+logic [N -1:0]  lock_en             ;
+logic [N -1:0]  lock_d              ;
+logic [N -1:0]  locked_in_en        ;
+logic [N -1:0]  locked_in_d         ;
+logic           lock_en_any         ;
+logic           locked_in_en_any    ;
+
+generate
+    for (genvar o_i = 0; o_i < N; o_i++) begin : g_lock
+        assign lock_set[o_i] = !locked[o_i] && gnt_vld[o_i]
+                             && !(out_rdy[o_i]
+                                  && f_eop[gnt_idx[o_i]*N + o_i]);
+        assign lock_clr[o_i] = locked[o_i]
+                             && f_vld[locked_in[o_i]*N + o_i]
+                             && out_rdy[o_i]
+                             && f_eop[locked_in[o_i]*N + o_i];
+        assign lock_en[o_i]  = lock_set[o_i] | lock_clr[o_i];
+        assign lock_d[o_i]   = lock_set[o_i] ? 1'b1
+                             : lock_clr[o_i] ? 1'b0
+                             : locked[o_i];
+        assign locked_in_en[o_i] = lock_set[o_i];
+        assign locked_in_d[o_i]  = lock_set[o_i] ? gnt_idx[o_i] : locked_in[o_i];
     end
-end
+endgenerate
+
+assign lock_en_any      = |lock_en;
+assign locked_in_en_any = |locked_in_en;
+
+dffr #(
+    .W          (N  ),
+    .RESET_VAL  ('0 )
+) U_LOCKED (
+    .clk    (clk            ),
+    .rst_n  (rst_n          ),
+    .en     (lock_en_any    ),
+    .d      (lock_d         ),
+    .q      (locked         )
+);
+
+dffr #(
+    .W          (N  ),
+    .RESET_VAL  ('0 )
+) U_LOCKED_IN (
+    .clk    (clk                ),
+    .rst_n  (rst_n              ),
+    .en     (locked_in_en_any   ),
+    .d      (locked_in_d        ),
+    .q      (locked_in          )
+);
 
 endmodule
 

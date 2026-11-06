@@ -1,7 +1,7 @@
 # E2 — 2x2 集成 RTL（定向 TB）
 
 > 状态：集成 RTL + 定向 TB + trace TB + 逐包逐 cycle co-sim 完成（185/185 exact；cell16/32/64、VC2/4、100%/75% ready、uniform/hotspot/bursty、fixed1/fixed8）。
-> CBB pin：`cbb_proj` `af593e9`，见 `vendor/cbb/README.md`。
+> CBB pin：`cbb_proj` `1fd7337`，见 `vendor/cbb/README.md`。
 
 ## 1. 拓扑
 
@@ -16,7 +16,7 @@
 
 - RTL：`rtl/xbar_2x2_shared.sv`
 - TB：`tb/xbar_2x2_shared_tb.sv`（定向）、`tb/xbar_2x2_trace_tb.sv`（随机 trace）
-- CBB：`vendor/cbb/rtl/...`（只读副本，pin `af593e9`）
+- CBB：`vendor/cbb/rtl/...`（只读副本，pin `1fd7337`）
 - 参数：`FLIT_W`、`N`、`VC_NUM`、`CELL_NUM`、`DST_W`、`VC_W`、`QUOTA_W`。
 - v1 无 quota；`quota_en`/`quota` 在集成层 tied off。
 
@@ -28,8 +28,10 @@
   - 锁定后只把 `out_rdy` 回给该输入；输入 FIFO 自身再锁到 (vc) 到 EOP。
   - 收到 EOP 握手后解锁。
 - 选中输入的 `out_sop/eop/data/vc` 直接 mux 到输出；未选中输入 `out_rdy=0`。
-- 输出选择寄存器使用显式 `always_ff`（与 `mo_fifo_top` selection 相同的
-  工具链例外），后续统一重构。
+- 输出锁 `locked/locked_in` 使用 `dffr` + 连续 next-state/enable；`req` 也改为
+  连续赋值。`mo_fifo_top` 的 selection 同样使用 `dffr` + 连续逻辑。
+  不要把 next-state 放回单个 `always_comb`：iverilog 11 下 `always_comb` +
+  `dffr` 会形成零延迟环（`always @*` 可绕过但违反规范）。
 
 ## 4. 定向 TB
 
@@ -57,8 +59,11 @@
 ## 5. 限制 / 下一步
 
 - 逐 cycle co-sim 已覆盖 cell16/32/64、VC2/4、100%/75% ready、
-  uniform/hotspot/bursty、fixed1/fixed8；尚未覆盖 quota、过载 >1.0、多 outstanding source。
-- 未做随机压力、输出 backpressure 全矩阵、SVA 运行时。
-- `mo_fifo_top` / 集成层的 selection 暂用显式 `always_ff`，CBB 规范待重构。
-- 下一步：先做 trace-driven co-sim（payload/包序/时序对齐），再跑
-  `CELL_NUM=16/32/64` 的集成对比，最后回写 E2 报告。
+  uniform/hotspot/bursty、fixed1/fixed8。
+- **明确不在 E2 v1 范围**：quota（只留钩子，端口 tied off）；过载 >1.0
+  （写侧只有 1 个写口，物理上不能注入 >1 flit/cycle；要测需多源/多写口）；
+  多 outstanding source（当前源模型每输入 1 个未完成包，是激励模型限制，
+  不是 RTL 限制）。
+- 顶层 SVA 未运行：依赖子 CBB 并发 SVA，iverilog 11 不支持整体 `-DSVA_ON` 编译；
+  定向 TB 和 trace TB 已做协议检查。
+- 结果与复现见 [`../reports/e2_cosim.md`](../reports/e2_cosim.md)。

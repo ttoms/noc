@@ -19,6 +19,8 @@
 // Limitations :
 //   - v1 无 quota/wormhole/多写口/CDC/ECC
 //   - 输出仲裁为寄存选择：选中后下一拍才可能输出，比组合仲裁多 1 拍
+//   - selection 状态用 dffr；next-state/enable 用连续赋值，避免 always_comb
+//     与 dffr 在 iverilog 11 下形成零延迟环
 //   - 每个输出每拍最多读 1 个 cell；同一 VC 不会被两个输出同时选中
 //   - 同拍写和读同一 cell 依赖 shared_buffer 的 read-old-data 语义
 //==============================================================================
@@ -206,29 +208,104 @@ always_comb begin
     end
 end
 
-// Selection registers.  These are control state; kept as one explicit
-// always_ff because the dffr d/en combination created a simulator loop in
-// the integration testbench.  Refactor to dffr once the loop is root-caused.
-always_ff @(posedge clk or negedge rst_n) begin
-    if (!rst_n) begin
-        sel_vld   <= '0;
-        sel_vc    <= '0;
-        vc_locked <= '0;
-    end else begin
-        for (int o_i = 0; o_i < N; o_i++) begin
-            if (!sel_vld[o_i]) begin
-                if (gnt_vld[o_i]) begin
-                    sel_vld[o_i] <= 1'b1;
-                    sel_vc[o_i*VC_W +: VC_W] <= gnt_idx[o_i*VC_W +: VC_W];
-                    vc_locked[gnt_idx[o_i*VC_W +: VC_W]] <= 1'b1;
-                end
-            end else if (out_vld[o_i] && out_rdy[o_i] && out_eop[o_i]) begin
-                sel_vld[o_i] <= 1'b0;
-                vc_locked[sel_vc[o_i*VC_W +: VC_W]] <= 1'b0;
-            end
-        end
+// Selection registers (dffr): next-state/enables as continuous logic.
+logic [N      -1:0] sel_set         ;
+logic [N      -1:0] sel_clr         ;
+logic [N      -1:0] sel_vld_en      ;
+logic [N      -1:0] sel_vld_d       ;
+logic [N*VC_W -1:0] sel_vc_d        ;
+logic [N      -1:0] sel_vc_en       ;
+logic [VC_NUM -1:0] vc_set          ;
+logic [VC_NUM -1:0] vc_clr          ;
+logic [VC_NUM -1:0] vc_locked_d     ;
+logic [VC_NUM -1:0] vc_lock_en      ;
+logic               sel_vld_en_any  ;
+logic               sel_vc_en_any   ;
+logic               vc_lock_en_any  ;
+
+assign sel_vld_en_any = |sel_vld_en;
+assign sel_vc_en_any  = |sel_vc_en;
+assign vc_lock_en_any = |vc_lock_en;
+
+generate
+    for (genvar o = 0; o < N; o++) begin : g_sel_next
+        assign sel_set[o]    = !sel_vld[o] && gnt_vld[o];
+        assign sel_clr[o]    = sel_vld[o] && out_vld[o] && out_rdy[o] && out_eop[o];
+        assign sel_vld_en[o] = sel_set[o] | sel_clr[o];
+        assign sel_vld_d[o]  = sel_set[o] ? 1'b1
+                             : sel_clr[o] ? 1'b0
+                             : sel_vld[o];
+        assign sel_vc_en[o]  = sel_set[o];
+        assign sel_vc_d[o*VC_W +: VC_W] = sel_set[o]
+                                          ? gnt_idx[o*VC_W +: VC_W]
+                                          : sel_vc[o*VC_W +: VC_W];
     end
-end
+endgenerate
+
+function automatic logic vc_set_f(input int vc);
+    logic r;
+    r = 1'b0;
+    for (int o = 0; o < N; o++) begin
+        r = r || (!sel_vld[o] && gnt_vld[o]
+                  && (gnt_idx[o*VC_W +: VC_W] == VC_W'(vc)));
+    end
+    return r;
+endfunction
+
+function automatic logic vc_clr_f(input int vc);
+    logic r;
+    r = 1'b0;
+    for (int o = 0; o < N; o++) begin
+        r = r || (sel_vld[o] && out_vld[o] && out_rdy[o] && out_eop[o]
+                  && (sel_vc[o*VC_W +: VC_W] == VC_W'(vc)));
+    end
+    return r;
+endfunction
+
+generate
+    for (genvar vc = 0; vc < VC_NUM; vc++) begin : g_lock_next
+        assign vc_set[vc]      = vc_set_f(vc);
+        assign vc_clr[vc]      = vc_clr_f(vc);
+        assign vc_lock_en[vc]  = vc_set[vc] | vc_clr[vc];
+        assign vc_locked_d[vc] = vc_set[vc] ? 1'b1
+                               : vc_clr[vc] ? 1'b0
+                               : vc_locked[vc];
+    end
+endgenerate
+
+dffr #(
+    .W          (N  ),
+    .RESET_VAL  ('0 )
+) U_SEL_VLD (
+    .clk    (clk            ),
+    .rst_n  (rst_n          ),
+    .en     (sel_vld_en_any ),
+    .d      (sel_vld_d      ),
+    .q      (sel_vld        )
+);
+
+dffr #(
+    .W          (N*VC_W ),
+    .RESET_VAL  ('0     )
+) U_SEL_VC (
+    .clk    (clk            ),
+    .rst_n  (rst_n          ),
+    .en     (sel_vc_en_any  ),
+    .d      (sel_vc_d       ),
+    .q      (sel_vc         )
+);
+
+dffr #(
+    .W          (VC_NUM ),
+    .RESET_VAL  ('0     )
+) U_VC_LOCKED (
+    .clk    (clk            ),
+    .rst_n  (rst_n          ),
+    .en     (vc_lock_en_any ),
+    .d      (vc_locked_d    ),
+    .q      (vc_locked      )
+);
+
 
 `ifdef SVA_ON
 `include "mo_fifo_top.sva"

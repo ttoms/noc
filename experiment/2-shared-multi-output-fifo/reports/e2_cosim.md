@@ -12,7 +12,7 @@
 
 ## 1. 口径
 
-- RTL：`rtl/xbar_2x2_shared.sv` + vendor CBB pin `af593e9`。
+- RTL：`rtl/xbar_2x2_shared.sv` + vendor CBB pin `1fd7337`。
 - 模型：`scripts/model_e2.py`，显式建模 RTL 的寄存选择：
   - 每输入/每输出的 `sel_vld/sel_vc/vc_locked` 寄存；
   - 每输出外部 2:1 RR + 包锁；
@@ -43,15 +43,21 @@
   调度不同；同 trace 下 RTL 893 包 vs E1 930 包，start/end 差均值 +50。
 - 新 `model_e2.py` 按 RTL 状态机重建后，先校准输出标签（RTL TB 在
   negedge 打印 `physical_cycle-1`），然后 15/15 exact。
+- selection 寄存器已从显式 `always_ff` 改为 `dffr` + 连续 next-state/enable。
+  根因：iverilog 11 下 `always_comb` + `dffr` 在 EOP 释放/重新选择时出现
+  零延迟环；`always @*` 可绕过但违反 CBB 规范，连续赋值是合规解。
 - 结论：RTL 的 1W/NR 共享 FIFO + 2x2 输出仲裁行为已被模型复现，
   不是只对齐包数/数据，而是包级 start/end 完全一致。
 
 ## 4. 限制
 
 - 覆盖 cell16/32/64、VC2/4、N=2、输出 100%/75% ready、uniform/hotspot/bursty。
-- 未覆盖 quota、过载 >1.0、多 outstanding source。
-- RTL 的 selection 暂用显式 `always_ff`（CBB 规范例外），待重构。
-- 顶层 SVA 未运行（依赖子 CBB 并发 SVA，iverilog 11 不支持整体编译）。
+- **不在 v1 范围**：quota（只留钩子、端口 tied off）；过载 >1.0
+  （写侧只有 1 个写口，不能注入 >1 flit/cycle；要测需多源/多写口）；
+  多 outstanding source（当前源模型每输入 1 个未完成包，是激励模型限制）。
+- RTL selection / output lock 均已改为 `dffr` + 连续逻辑，无 `always_ff` 例外。
+- 顶层 SVA 未运行（依赖子 CBB 并发 SVA，iverilog 11 不支持整体编译）；
+  定向 TB + trace TB 已覆盖 payload/seq、SOP/EOP、目的、VC 检查。
 
 ## 5. 复现
 
