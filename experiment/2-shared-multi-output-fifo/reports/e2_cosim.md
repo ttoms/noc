@@ -1,12 +1,14 @@
 # E2 — RTL / cycle-model 逐包逐 cycle co-sim
 
 > 日期：2026-11-06
-> 状态：165/165 runs exact；覆盖 cell16/32/64、VC2/4、100%/75% ready、
-> uniform/hotspot/bursty。
+> 状态：185/185 runs exact；覆盖 cell16/32/64、VC2/4、100%/75% ready、
+> uniform/hotspot/bursty、fixed1/fixed8。
 > 数据：[../results/e2_cosim_full/](../results/e2_cosim_full/)、
 > [../results/e2_cosim_backpressure/](../results/e2_cosim_backpressure/)、
 > [../results/e2_cosim_hotspot/](../results/e2_cosim_hotspot/)、
-> [../results/e2_cosim_bursty/](../results/e2_cosim_bursty/)
+> [../results/e2_cosim_bursty/](../results/e2_cosim_bursty/)、
+> [../results/e2_cosim_fixed1/](../results/e2_cosim_fixed1/)、
+> [../results/e2_cosim_fixed8/](../results/e2_cosim_fixed8/)
 
 ## 1. 口径
 
@@ -28,7 +30,9 @@
 - 输出反压：15/15 runs exact（cell16/VC2、75% ready、5 seeds × 3 loads）。
 - hotspot：30/30 runs exact（cell16/32/64 × 5 seeds × load0.9/1.0，80% 到 output0）。
 - bursty：30/30 runs exact（cell16/32/64 × 5 seeds × load0.9/1.0）。
-- 合计：165/165 runs exact。
+- fixed1：10/10 exact（cell16/VC2 × 5 seeds × load0.9/1.0）。
+- fixed8：10/10 exact（cell16/VC2 × 5 seeds × load0.9/1.0）。
+- 合计：185/185 runs exact。
 - 每 run 的模型包数 = RTL 包数；包集合完全一致：`rtl_only=0`、`model_only=0`。
 - 每个包的 `start` 差 = 0，`end` 差 = 0。
 - RTL trace TB 同时检查 payload/seq、SOP/EOP、目的、VC；无 data/protocol error。
@@ -45,7 +49,7 @@
 ## 4. 限制
 
 - 覆盖 cell16/32/64、VC2/4、N=2、输出 100%/75% ready、uniform/hotspot/bursty。
-- 未覆盖 quota、过载 >1.0、多 outstanding source、固定包长 fixed1/fixed8。
+- 未覆盖 quota、过载 >1.0、多 outstanding source。
 - RTL 的 selection 暂用显式 `always_ff`（CBB 规范例外），待重构。
 - 顶层 SVA 未运行（依赖子 CBB 并发 SVA，iverilog 11 不支持整体编译）。
 
@@ -71,4 +75,12 @@ python3 scripts/run_e2_cosim.py \
 python3 scripts/run_e2_cosim.py \
   --seeds 1,2,3,4,5 --loads 0.9,1.0 --cell-nums 16,32,64 --vc-nums 2 \
   --traffic bursty --workdir /root/Temp/e2_cosim_burst --outdir results/e2_cosim_bursty
+
+# fixed1 / fixed8
+python3 scripts/run_e2_cosim.py \
+  --seeds 1,2,3,4,5 --loads 0.9,1.0 --cell-nums 16 --vc-nums 2 \
+  --length-mode fixed1 --workdir /root/Temp/e2_cosim_fixed1 --outdir results/e2_cosim_fixed1
+python3 scripts/run_e2_cosim.py \
+  --seeds 1,2,3,4,5 --loads 0.9,1.0 --cell-nums 16 --vc-nums 2 \
+  --length-mode fixed8 --workdir /root/Temp/e2_cosim_fixed8 --outdir results/e2_cosim_fixed8
 ```
