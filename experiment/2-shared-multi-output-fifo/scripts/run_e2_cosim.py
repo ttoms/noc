@@ -78,6 +78,8 @@ def main() -> int:
     ap.add_argument("--vc-nums", default="2")
     ap.add_argument("--trace-cycles", type=int, default=2500)
     ap.add_argument("--sim-cycles", type=int, default=2600)
+    ap.add_argument("--traffic", default="uniform")
+    ap.add_argument("--length-mode", default="uniform1-8")
     ap.add_argument("--rdy-period", type=int, default=0)
     ap.add_argument("--rdy-high", type=int, default=0)
     ap.add_argument("--workdir", default="/root/Temp/e2_cosim")
@@ -105,7 +107,7 @@ def main() -> int:
         subprocess.run(compile_cmd, check=True)
         for seed in seeds:
           for load in loads:
-            stem = f"c{cell_num}_v{vc_num}_l{load:g}_s{seed}"
+            stem = f"c{cell_num}_v{vc_num}_{args.traffic}_{args.length_mode}_l{load:g}_s{seed}"
             base = work / f"{stem}_base.jsonl"
             vc = work / f"{stem}_vc.jsonl"
             vc_off = work / f"{stem}_vc_off.jsonl"
@@ -117,7 +119,8 @@ def main() -> int:
                     sys.executable, str(EXP1 / "scripts" / "gen_trace.py"),
                     "--out", str(base), "--load", str(load),
                     "--cycles", str(args.trace_cycles), "--seed", str(seed),
-                    "--length-mode", "uniform1-8", "--traffic", "uniform",
+                    "--length-mode", args.length_mode,
+                    "--traffic", args.traffic,
                 ],
                 check=True,
                 stdout=subprocess.DEVNULL,

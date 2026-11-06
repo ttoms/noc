@@ -1,6 +1,6 @@
 # E2 — 2x2 集成 RTL（定向 TB）
 
-> 状态：集成 RTL + 定向 TB + trace TB + 逐包逐 cycle co-sim 完成（cell16/32/64、VC2/4、100%/75% ready 全部 exact）。
+> 状态：集成 RTL + 定向 TB + trace TB + 逐包逐 cycle co-sim 完成（165/165 exact；cell16/32/64、VC2/4、100%/75% ready、uniform/hotspot/bursty）。
 > CBB pin：`cbb_proj` `af593e9`，见 `vendor/cbb/README.md`。
 
 ## 1. 拓扑
@@ -56,8 +56,8 @@
 
 ## 5. 限制 / 下一步
 
-- 逐 cycle co-sim 已覆盖 cell16/32/64、VC2/4、100%/75% ready；尚未覆盖
-  hotspot/bursty、quota、过载 >1.0。
+- 逐 cycle co-sim 已覆盖 cell16/32/64、VC2/4、100%/75% ready、
+  uniform/hotspot/bursty；尚未覆盖 quota、过载 >1.0、多 outstanding source。
 - 未做随机压力、输出 backpressure 全矩阵、SVA 运行时。
 - `mo_fifo_top` / 集成层的 selection 暂用显式 `always_ff`，CBB 规范待重构。
 - 下一步：先做 trace-driven co-sim（payload/包序/时序对齐），再跑

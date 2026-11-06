@@ -1,9 +1,12 @@
 # E2 — RTL / cycle-model 逐包逐 cycle co-sim
 
 > 日期：2026-11-06
-> 状态：cell16/32/64 × VC2/4 × 5 seeds × 3 loads 全部 exact；输出 75% ready 也 exact。
-> 数据：[../results/e2_cosim_full/summary.csv](../results/e2_cosim_full/summary.csv)、
-> [../results/e2_cosim_backpressure/summary.csv](../results/e2_cosim_backpressure/summary.csv)
+> 状态：165/165 runs exact；覆盖 cell16/32/64、VC2/4、100%/75% ready、
+> uniform/hotspot/bursty。
+> 数据：[../results/e2_cosim_full/](../results/e2_cosim_full/)、
+> [../results/e2_cosim_backpressure/](../results/e2_cosim_backpressure/)、
+> [../results/e2_cosim_hotspot/](../results/e2_cosim_hotspot/)、
+> [../results/e2_cosim_bursty/](../results/e2_cosim_bursty/)
 
 ## 1. 口径
 
@@ -21,8 +24,11 @@
 
 ## 2. 结果
 
-- 主矩阵：90/90 runs exact（cell16/32/64 × VC2/4 × 5 seeds × load0.8/0.9/1.0）。
+- 主矩阵：90/90 runs exact（cell16/32/64 × VC2/4 × 5 seeds × load0.8/0.9/1.0，uniform）。
 - 输出反压：15/15 runs exact（cell16/VC2、75% ready、5 seeds × 3 loads）。
+- hotspot：30/30 runs exact（cell16/32/64 × 5 seeds × load0.9/1.0，80% 到 output0）。
+- bursty：30/30 runs exact（cell16/32/64 × 5 seeds × load0.9/1.0）。
+- 合计：165/165 runs exact。
 - 每 run 的模型包数 = RTL 包数；包集合完全一致：`rtl_only=0`、`model_only=0`。
 - 每个包的 `start` 差 = 0，`end` 差 = 0。
 - RTL trace TB 同时检查 payload/seq、SOP/EOP、目的、VC；无 data/protocol error。
@@ -38,8 +44,8 @@
 
 ## 4. 限制
 
-- 覆盖 cell16/32/64、VC2/4、N=2、输出 100%/75% ready。
-- 未覆盖 hotspot/bursty、quota、过载 >1.0、多 outstanding source。
+- 覆盖 cell16/32/64、VC2/4、N=2、输出 100%/75% ready、uniform/hotspot/bursty。
+- 未覆盖 quota、过载 >1.0、多 outstanding source、固定包长 fixed1/fixed8。
 - RTL 的 selection 暂用显式 `always_ff`（CBB 规范例外），待重构。
 - 顶层 SVA 未运行（依赖子 CBB 并发 SVA，iverilog 11 不支持整体编译）。
 
@@ -57,4 +63,12 @@ python3 scripts/run_e2_cosim.py \
   --seeds 1,2,3,4,5 --loads 0.8,0.9,1.0 --cell-nums 16 --vc-nums 2 \
   --rdy-period 8 --rdy-high 6 \
   --workdir /root/Temp/e2_cosim_bp_full --outdir results/e2_cosim_backpressure
+
+# hotspot / bursty
+python3 scripts/run_e2_cosim.py \
+  --seeds 1,2,3,4,5 --loads 0.9,1.0 --cell-nums 16,32,64 --vc-nums 2 \
+  --traffic hotspot --workdir /root/Temp/e2_cosim_hot --outdir results/e2_cosim_hotspot
+python3 scripts/run_e2_cosim.py \
+  --seeds 1,2,3,4,5 --loads 0.9,1.0 --cell-nums 16,32,64 --vc-nums 2 \
+  --traffic bursty --workdir /root/Temp/e2_cosim_burst --outdir results/e2_cosim_bursty
 ```
